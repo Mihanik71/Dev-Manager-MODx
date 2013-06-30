@@ -14,6 +14,7 @@ class dataDeveloperManager{
 		$this->dbTable['template'] 	= $this->config['dbprefix'].'site_templates';
 		$this->dbTable['tv'] 		= $this->config['dbprefix'].'site_tmplvars';
 		$this->dbTable['plugin'] 	= $this->config['dbprefix'].'site_plugins';
+		Error_Reporting(E_ERROR);
 	}
 	public function __destruct(){
 		unset($this->config);

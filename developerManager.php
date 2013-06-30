@@ -76,8 +76,8 @@ class DeveloperManager extends dataDeveloperManager{
 		<div onclick = "spoil('chunkBlock');" oncontextmenu="return menu(1, event, this, 'chunk');" class="category">Чанки:</div>
 		<div id="chunkBlock" style="display:none;padding-left:10px;">
 		</div>
-		<div onclick = "spoil('TVBlock');" oncontextmenu="return menu(1, event, this, 'TV');" class="category">TV параметры:</div>
-		<div id="TVBlock" style="display:none;padding-left:10px;">
+		<div onclick = "spoil('tvBlock');" oncontextmenu="return menu(1, event, this, 'tv');" class="category">TV параметры:</div>
+		<div id="tvBlock" style="display:none;padding-left:10px;">
 		</div>
 		<div onclick = "spoil('snippetBlock');" oncontextmenu="return menu(1, event, this, 'snippet');" class="category">Сниппеты:</div>
 		<div id="snippetBlock" style="display:none;padding-left:10px;">
@@ -106,7 +106,7 @@ class DeveloperManager extends dataDeveloperManager{
 					<a src="#" onclick="closeMenu();">Отмена</a>
 				</div>
 			</div>
-			<div class="close"><img src="/assets/modules/devmanager/images/close_2.png" onclick="closeMenu();" style="width: 100%;" title="Закрыть"/></div>
+			<div class="close"><img src="../assets/modules/devmanager/images/close_2.png" onclick="closeMenu();" style="width: 100%;" title="Закрыть"/></div>
 		</div>
 	</div>
 </body>

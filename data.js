@@ -96,15 +96,15 @@ function printData(parameters, block){
 			$(block).innerHTML = req.responseText;
 	}
 }
-function printCode(parameters, tab_id, type){
+function printCode(parameters, id, type){
 	req = createRequest();
 	if (req){
 		req.open("POST", '', false);
 		req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 		req.send(parameters);
 		if (req.status == 200){
-			$('data_tabs').innerHTML += '<textarea id="'+tab_id+'" style="width: calc(100% - 6px);">'+req.responseText+'</textarea>';
-			viewCM(tab_id, type);
+			$('data_tabs').innerHTML += '<textarea id="data_tab_'+type+'_'+id+'" style="width: calc(100% - 6px);">'+req.responseText+'</textarea>';
+			viewCM(id, type);
 		}
 	}
 }
@@ -130,7 +130,7 @@ function printResult(parameters){
 	}
 }
 //
-function viewCM(tab_id, type){
+function viewCM(id, type){
 	var mode = (type == 'snippet'||type == 'plugin')?'application/x-httpd-php-open':'htmlmixed';
 	CodeMirror.defineMode("MODx-"+mode, function(config, parserConfig) {
 		var mustacheOverlay = {
@@ -217,12 +217,30 @@ function viewCM(tab_id, type){
 				var info = cm.lineInfo(n);
 				foldFunc(cm, n);
 				cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker("+"));
+			},
+			"Ctrl-S": function(cm) {
+				saveData(type, id);
 			}
 		}
 	};
 	var foldFunc = CodeMirror.newFoldFunction(CodeMirror.tagRangeFinder);
-	var myTextArea = $(tab_id);
+	var myTextArea = $('data_tab_'+type+'_'+id);
 	myCodeMirror = (CodeMirror.fromTextArea(myTextArea, config));
+	myCodeMirror.focus();
+	myCodeMirror.on("gutterClick", function(cm, n) {
+		var info = cm.lineInfo(n);
+		foldFunc(cm, n);
+		cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker("+"));
+	});
+	function makeMarker(str){
+		var marker = document.createElement("div");
+		marker.style.color = "#822";
+		marker.innerHTML = str;
+		return marker;
+	}
+	myCodeMirror.on("change", function(cm, n) {
+		$('icon_tab_'+type+'_'+id).setAttribute('src', '../assets/modules/devmanager/images/stat2.png');
+	});
 }
 function createCopy(str, id, name){
 	if(confirm("Bы уверены, что хотите создать копию "+name+"?"))
@@ -235,20 +253,31 @@ function deleteDoc(str, id, name){
 function loadLeftBlock(){
 	printData('from=ajax&func=printAll&data=doc', 'documentBlock');
 	printData('from=ajax&func=printAll&data=chunk', 'chunkBlock');
-	printData('from=ajax&func=printAll&data=tv', 'TVBlock');
+	printData('from=ajax&func=printAll&data=tv', 'tvBlock');
 	printData('from=ajax&func=printAll&data=snippet', 'snippetBlock');
 	printData('from=ajax&func=printAll&data=plugin', 'pluginBlock');
 	printData('from=ajax&func=printAll&data=template', 'templateBlock');
 }
 function closeTab(elem,name){
-	if(confirm("Bы уверены, что хотите закрыть '"+name+"'?")){
+	var stat = elem.parentNode.getElementsByClassName('icon_tab')[0].getAttribute('src');
+	if (stat == '../assets/modules/devmanager/images/stat2.png'){
+		if(confirm("Bы уверены, что хотите закрыть '"+name+"'?")){
+			var data = $('data_'+elem.parentNode.id);
+			remove(data);
+			remove(elem.parentNode);
+			var data_active = $byClass('CodeMirror cm-s-default CodeMirror-wrap');
+			remove(data_active[0]);
+			$('buttons').innerHTML = '';
+		}
+	}
+	else{
 		var data = $('data_'+elem.parentNode.id);
 		remove(data);
 		remove(elem.parentNode);
 		var data_active = $byClass('CodeMirror cm-s-default CodeMirror-wrap');
 		remove(data_active[0]);
 		$('buttons').innerHTML = '';
-	}
+	}	
 }
 function viewCode(type, id, name){
 	var tabs = $('tabs');
@@ -260,13 +289,13 @@ function viewCode(type, id, name){
 	var data_active = $byClass('CodeMirror cm-s-default CodeMirror-wrap');
 	if (data_active[0] != undefined)
 		remove(data_active[0]);
-	$('buttons').innerHTML = '<img src="/assets/modules/devmanager/images/save.png" onclick="saveData(\''+type+'\','+id+');" title="Сохранить"/>';
+	$('buttons').innerHTML = '<img src="../assets/modules/devmanager/images/save.png" onclick="saveData(\''+type+'\','+id+');" title="Сохранить"/>';
 	if (tab != undefined){
 		tab.className = 'active_tab';
-		viewCM('data_'+tab_id, type);
+		viewCM(id, type);
 	}else{
-		tabs.innerHTML += '<div class="active_tab" id="'+tab_id+'"><div onclick="viewCode(\''+type+'\','+id+',\''+name+'\')" style="float:left;padding-top:3px;">'+name+'</div><img src="/assets/modules/devmanager/images/close.png" class="close_tab" onclick="closeTab(this,\''+name+'\');" title="Закрыть '+name+'"/></div>';
-		printCode('from=ajax&func=printCode&data='+type+'&DMid='+id, 'data_'+tab_id, type);
+		tabs.innerHTML += '<div class="active_tab" id="'+tab_id+'"><img src="../assets/modules/devmanager/images/stat.png" class="icon_tab" id="icon_tab_'+type+'_'+id+'"/><div onclick="viewCode(\''+type+'\','+id+',\''+name+'\')" style="float:left;padding-top:3px;">'+name+'</div><img src="../assets/modules/devmanager/images/close.png" class="close_tab" onclick="closeTab(this,\''+name+'\');" title="Закрыть '+name+'"/></div>';
+		printCode('from=ajax&func=printCode&data='+type+'&DMid='+id, id, type);
 	}
 }
 function viewMenu(){
@@ -287,6 +316,7 @@ function saveData(type, id){
 	var str = 'from=ajax&func=saveData&data='+type+'&DMid='+id+'&content='+content;
 	printResult(str);
 	$('data_tab_'+type+'_'+id).innerHTML = myCodeMirror.doc.getValue();
+	$('icon_tab_'+type+'_'+id).setAttribute('src', '../assets/modules/devmanager/images/stat.png');
 }
 function saveConfig(type, id){
 	var arr = $byClass('inputBox');
