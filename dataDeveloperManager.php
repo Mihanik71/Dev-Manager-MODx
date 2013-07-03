@@ -14,6 +14,7 @@ class dataDeveloperManager{
 		$this->dbTable['template'] 	= $this->config['dbprefix'].'site_templates';
 		$this->dbTable['tv'] 		= $this->config['dbprefix'].'site_tmplvars';
 		$this->dbTable['plugin'] 	= $this->config['dbprefix'].'site_plugins';
+		$this->dbTable['categories']= $this->config['dbprefix'].'categories';
 		Error_Reporting(E_ERROR);
 	}
 	public function __destruct(){
@@ -131,11 +132,11 @@ class dataDeveloperManager{
 	public function getAll($type, $sort = 'id', $format = 'html'){
 		switch($type){
 			case 'doc'		: $result = $this->selectAll('id, pagetitle, longtitle, published', $this->dbTable['doc'], $sort); break;
-			case 'chunk'	: $result = $this->selectAll('id, name, description', $this->dbTable['chunk'], $sort); break;
-			case 'tv'		: $result = $this->selectAll('id, name, description', $this->dbTable['tv'], $sort); break;
-			case 'snippet'	: $result = $this->selectAll('id, name, description', $this->dbTable['snippet'], $sort); break;
-			case 'plugin'	: $result = $this->selectAll('id, name, description, locked, disabled', $this->dbTable['plugin'], $sort); break;
-			case 'template'	: $result = $this->selectAll('id, templatename, description', $this->dbTable['template'], $sort); break;
+			case 'chunk'	: $result = $this->selectAll('id, name, description, category', $this->dbTable['chunk'], $sort); break;
+			case 'tv'		: $result = $this->selectAll('id, name, description, category', $this->dbTable['tv'], $sort); break;
+			case 'snippet'	: $result = $this->selectAll('id, name, description, category', $this->dbTable['snippet'], $sort); break;
+			case 'plugin'	: $result = $this->selectAll('id, name, description, locked, disabled, category', $this->dbTable['plugin'], $sort); break;
+			case 'template'	: $result = $this->selectAll('id, templatename, description, category', $this->dbTable['template'], $sort); break;
 		}
 		return ($format == 'json')?json_encode($result):$result;
 	}
@@ -146,6 +147,12 @@ class dataDeveloperManager{
 	private function selectAll($field, $table, $sort){
 		$result = $this->modx->db->select($field, $table, '', $sort.' ASC');
 		return $this->modx->db->makeArray($result);
+	}
+	public function selectCategories($format = 'html'){
+		$rs = $this->modx->db->select('id,category', $this->dbTable['categories']);
+		$qty = mysql_num_rows($rs)+1;
+		for ($i = 1; $i < $qty; $i++) $result[$i] = mysql_fetch_assoc($rs);
+		return ($format == 'json')?json_encode($result):$result;
 	}
 }
 ?>

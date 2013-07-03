@@ -17,6 +17,16 @@
 	line-height:1;
 	cursor: pointer;
 }
+#contextMenu{
+	position:absolute;
+	background: #fff;
+	z-index:10;
+	margin: 0;
+	padding: 2px;
+	border: 1px solid #ededed;
+	border-right-color: #dcdcdc;
+	border-bottom-color: #dcdcdc;
+}
 .menuLink{
 	cursor: pointer;
 	color: #222;
@@ -50,6 +60,10 @@
 }
 .left a{
 	font-size:90%;
+	background: url(/manager/media/style/MODxCarbon/images/misc/li.gif);
+	background-repeat: no-repeat;
+	padding-left: 12px;
+	margin:5px;
 }
 a.disabled{
 	color: #aaa;
@@ -62,9 +76,12 @@ a.disabled{
 #tabs{
 	width:100%;
 	height:26px;
+	position:fixed;
+	z-index: 8;
 }
 #data_tabs{
 	width:100%;
+	padding-top: 44px;
 }
 .tab{
 	float:left;
@@ -174,13 +191,32 @@ a.disabled{
 #buttons{
 	width: 100%;
 	height: 20px;
+	position:fixed;
+	margin-top: 26px;
+	z-index:8;
 }
 #buttons img{
 	cursor: pointer;
+	margin-right: 5px;
+	height:16px;
 }
 .icon_tab{
 	float:left;
 	width: 13px;
 	height: 13px;
 	margin: 5px 5px 0 0;
+}
+.categories{
+	font-weight: bold;
+	margin-left: 3px;
+	cursor: pointer;
+}
+.category_panel{
+	height: 20px;
+	width: 100%;
+}
+.category_panel img{
+	width: 16px;
+	padding-top: 3px;
+	cursor: pointer;
 }

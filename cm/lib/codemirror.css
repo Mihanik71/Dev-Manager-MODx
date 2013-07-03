@@ -325,3 +325,38 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
     color: #000;
     text-shadow:1px 1px 10px rgba(106, 177, 0, 0.68);
 }
+.CodeMirror-dialog {
+  position: absolute;
+  left: 0; right: 0;
+  background: white;
+  z-index: 15;
+  padding: .1em .8em;
+  overflow: hidden;
+  color: #333;
+}
+
+.CodeMirror-dialog-top {
+  position:relative;
+  border-bottom: 1px solid #eee;
+  top: 0;
+  left:40px;
+  z-index: 15;
+}
+
+.CodeMirror-dialog-bottom {
+  border-top: 1px solid #eee;
+  bottom: 0;
+}
+
+.CodeMirror-dialog input {
+  border: 1px solid #888;
+  outline: none;
+  background: transparent;
+  width: 20em;
+  color: inherit;
+  font-family: monospace;
+}
+
+.CodeMirror-dialog button {
+  font-size: 70%;
+}

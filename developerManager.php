@@ -23,7 +23,7 @@ class DeveloperManager extends dataDeveloperManager{
 	private function answer(){
 		switch($this->parameters['func']){
 			case 'printAll':
-				echo $this->printAll($this->parameters['data']);
+					echo (($this->parameters['cat'] == '1')&&($this->parameters['data'] != 'doc')) ? $this->printAllCategory($this->parameters['data'], $this->parameters['sort']) : $this->printAll($this->parameters['data'], $this->parameters['sort']);
 				break;
 			case 'createCopy':
 				echo $this->createCopy($this->parameters['data'],$this->parameters['DMid']);
@@ -46,6 +46,9 @@ class DeveloperManager extends dataDeveloperManager{
 			case 'saveData':
 				echo $this->saveData($this->parameters['data'],$this->parameters['DMid']);
 				break;
+			case 'create':
+				echo $this->createNew($this->parameters['data']);
+				break;
 		}
 	}
 	private function printPage(){
@@ -62,31 +65,41 @@ class DeveloperManager extends dataDeveloperManager{
 	<script src="../assets/modules/devmanager/cm/addon-compressed.js"></script>
 	<script src="../assets/modules/devmanager/cm/mode/htmlmixed-compressed.js"></script>
 	<script src="../assets/modules/devmanager/cm/mode/php-compressed.js"></script>
+	<script src="../assets/modules/devmanager/cm/emmet-compressed.js"></script>
+	<script src="../assets/modules/devmanager/cm/searchcursor.js"></script>
+	<script src="../assets/modules/devmanager/cm/dialog.js"></script>
 	<script>
 		var theme = '{$this->config['theme']}';
-		var myCodeMirror;
-		var req;
+		var sorted = 'id';
+		var cat = '0';
+		var myCodeMirror, req;
 	</script>
 </head>
 <body>
 	<div class="left">
-		<div onclick ="spoil('documentBlock');" oncontextmenu="return menu(1, event, this, 'document');" class="category">Документы:</div>
-		<div id="documentBlock" class="docBlock" style="display:none;padding-left:10px;">
+		<div class="category_panel">
+			<img src="../assets/modules/devmanager/images/cat.gif" onclick="viewCategory(this);" style="width: 20px;" title="Показать категории"/>
+			<img src="media/style/{$this->config['theme']}/images/icons/sort.png" onclick="sort(this);" title="Сортировать по имени"/>
+			<img src="media/style/{$this->config['theme']}/images/icons/arrow_down.png" onclick="viewAllCategories();" title="Развернуть всё"/>	
+			<img src="media/style/{$this->config['theme']}/images/icons/arrow_up.png" onclick="spoilAllCategories();" title="Свернуть всё"/>
 		</div>
-		<div onclick = "spoil('chunkBlock');" oncontextmenu="return menu(1, event, this, 'chunk');" class="category">Чанки:</div>
-		<div id="chunkBlock" style="display:none;padding-left:10px;">
+		<div onclick ="spoil('docBlock');" oncontextmenu="return menu.view(1, event, this, 'doc');" class="category">Документы:</div>
+		<div id="docBlock" class="spoilCategory" style="display:none;">
 		</div>
-		<div onclick = "spoil('tvBlock');" oncontextmenu="return menu(1, event, this, 'tv');" class="category">TV параметры:</div>
-		<div id="tvBlock" style="display:none;padding-left:10px;">
+		<div onclick = "spoil('chunkBlock');" oncontextmenu="return menu.view(1, event, this, 'chunk');" class="category">Чанки:</div>
+		<div id="chunkBlock" class="spoilCategory" style="display:none;">
 		</div>
-		<div onclick = "spoil('snippetBlock');" oncontextmenu="return menu(1, event, this, 'snippet');" class="category">Сниппеты:</div>
-		<div id="snippetBlock" style="display:none;padding-left:10px;">
+		<div onclick = "spoil('tvBlock');" oncontextmenu="return menu.view(1, event, this, 'tv');" class="category">TV параметры:</div>
+		<div id="tvBlock" class="spoilCategory" style="display:none;">
 		</div>
-		<div onclick = "spoil('pluginBlock');" oncontextmenu="return menu(1, event, this, 'plugin');" class="category">Плагины:</div>
-		<div id="pluginBlock" style="display:none;padding-left:10px;">
+		<div onclick = "spoil('snippetBlock');" oncontextmenu="return menu.view(1, event, this, 'snippet');" class="category">Сниппеты:</div>
+		<div id="snippetBlock" class="spoilCategory" style="display:none;">
 		</div>
-		<div onclick = "spoil('templateBlock');" oncontextmenu="return menu(1, event, this, 'template');" class="category">Шаблоны:</div>
-		<div id="templateBlock" style="display:none;padding-left:10px;"></div>
+		<div onclick = "spoil('pluginBlock');" oncontextmenu="return menu.view(1, event, this, 'plugin');" class="category">Плагины:</div>
+		<div id="pluginBlock" class="spoilCategory" style="display:none;">
+		</div>
+		<div onclick = "spoil('templateBlock');" oncontextmenu="return menu.view(1, event, this, 'template');" class="category">Шаблоны:</div>
+		<div id="templateBlock" class="spoilCategory" style="display:none;"></div>
 	</div>
 	<div id="right">
 		<div id="tabs">
@@ -95,7 +108,7 @@ class DeveloperManager extends dataDeveloperManager{
 		<div id="data_tabs">
 		</div>
 	</div>
-	<div id="contextMenu" style="position:absolute; top:0; left:0;display:none;background: #fff;z-index:10;margin: 0;padding: 2px;border: 1px solid #ededed;border-right-color: #dcdcdc;border-bottom-color: #dcdcdc;"></div>
+	<div id="contextMenu" style="top:0; left:0;display:none;"></div>
 	<div id="box"  style="display:none;">
 		<div class="bg"></div>
 		<div class="menu">
@@ -103,10 +116,10 @@ class DeveloperManager extends dataDeveloperManager{
 				<div class="data" id="data_menu"></div>
 				<div class="actionButtons">
 					<a src="#" id="saveConfig">Сохранить</a>
-					<a src="#" onclick="closeMenu();">Отмена</a>
+					<a src="#" onclick="box.close();">Отмена</a>
 				</div>
 			</div>
-			<div class="close"><img src="../assets/modules/devmanager/images/close_2.png" onclick="closeMenu();" style="width: 100%;" title="Закрыть"/></div>
+			<div class="close"><img src="../assets/modules/devmanager/images/close_2.png" onclick="box.close();" style="width: 100%;" title="Закрыть"/></div>
 		</div>
 	</div>
 </body>
@@ -115,31 +128,61 @@ HEREDOC;
 	}
 	private function printAll($type, $par = 'id'){
 		$result = '';
-		$arr = $this->getAll($type);
+		$arr = $this->getAll($type, $par);
 		switch($type){
 			case 'doc': 
 				foreach ($arr as $i)
-					$result .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['pagetitle'].'\');return false;" title="'.$i['longtitle'].'" oncontextmenu="return menu(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['pagetitle'].' ('.$i['id'].')</a></br>';
+					$result .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['pagetitle'].'\');return false;" title="'.$i['longtitle'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['pagetitle'].'</a></br>';
 				break;
 			case 'tv':
 				foreach ($arr as $i)
-					$result .= '<a href="#" title="'.$i['description'].'" onclick="getConfig(\''.$type.'\', \''.$i['id'].'\');" oncontextmenu="return menu(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].' ('.$i['id'].')</a></br>';
+					$result .= '<a href="#" title="'.$i['description'].'" onclick="box.getConfig(\''.$type.'\', \''.$i['id'].'\');" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
 				break;
 			case 'chunk':
 			case 'snippet':
 				foreach ($arr as $i)
-					$result .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['name'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].' ('.$i['id'].')</a></br>';
+					$result .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['name'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
 				break;
 			case 'plugin':
 				foreach ($arr as $i){
 					$dis = ($i['disabled'] == '1')?'disabled':'';
-					$result .= '<a href="#" class="'.$dis.'" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['name'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].' ('.$i['id'].')</a></br>';
+					$result .= '<a href="#" class="'.$dis.'" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['name'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
 				}
 				break;
 			case 'template':
 				foreach ($arr as $i)
-					$result .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['templatename'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['templatename'].' ('.$i['id'].')</a></br>';
+					$result .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['templatename'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['templatename'].'</a></br>';
 			break;
+		}
+		return $result;
+	}
+	private function printAllCategory($type, $par = 'id'){
+		$arr = $this->getAll($type, $par);
+		$category = $this->selectCategories();
+		$arr_str = array();
+		switch($type){
+			case 'tv':
+				foreach ($arr as $i)
+					$arr_str[$i['category']] .= '<a href="#" title="'.$i['description'].'" onclick="getConfig(\''.$type.'\', \''.$i['id'].'\');" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
+				break;
+			case 'chunk':
+			case 'snippet':
+				foreach ($arr as $i)
+					$arr_str[$i['category']] .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['name'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
+				break;
+			case 'plugin':
+				foreach ($arr as $i){
+					$dis = ($i['disabled'] == '1')?'disabled':'';
+					$arr_str[$i['category']] .= '<a href="#" class="'.$dis.'" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['name'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
+				}
+				break;
+			case 'template':
+				foreach ($arr as $i)
+					$arr_str[$i['category']] .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['templatename'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['templatename'].'</a></br>';
+			break;
+		}
+		foreach ($arr_str as $key => $value){
+			$result .= '<div onclick="spoil(\''.$type.'_category_'.$key.'\');" class="categories">'.$category[$key]['category'].'</div><div id="'.$type.'_category_'.$key.'" style="display:none;" class="categories_data">'.$value.'</div>';
 		}
 		return $result;
 	}
@@ -322,6 +365,23 @@ HEREDOC;
 				break;
 		}
 		return $this->update($type, $fields, $id);
+	}
+	private function createNew($type){
+		switch($type){
+			case 'doc'		: 
+				$fields['pagetitle'] = 'New';
+				break;
+			case 'chunk'	: 
+			case 'snippet'	: 
+			case 'plugin'	:
+			case 'tv'		:
+				$fields['name'] = 'New';
+				break;
+			case 'template'	: 
+				$fields['templatename'] = 'New';
+				break;
+		}
+		return $this->create($type, $fields);
 	}
 }
 ?>
