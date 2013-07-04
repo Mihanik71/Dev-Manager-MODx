@@ -241,7 +241,7 @@ function viewCode(type, id, name){
 		tab.className = 'active_tab';
 		viewCM(id, type);
 	}else{
-		tabs.innerHTML += '<div class="active_tab" id="'+tab_id+'"><img src="../assets/modules/devmanager/images/stat.png" class="icon_tab" id="icon_tab_'+type+'_'+id+'"/><div onclick="viewCode(\''+type+'\','+id+',\''+name+'\')" style="float:left;padding-top:3px;">'+name+'</div><img src="../assets/modules/devmanager/images/close.png" class="close_tab" onclick="closeTab(this,\''+name+'\');" title="Закрыть '+name+'"/></div>';
+		tabs.innerHTML += '<div class="active_tab" id="'+tab_id+'"><img src="../assets/modules/devmanager/images/stat.png" class="icon_tab" id="icon_tab_'+type+'_'+id+'"/><div onclick="viewCode(\''+type+'\','+id+',\''+name+'\')" style="float:left;padding-top:3px;" oncontextmenu="return menu.view(3, event, this, \''+type+'\', \''+id+'\');">'+name+'</div><img src="media/style/'+theme+'/images/icons/cancel.png" class="close_tab" onclick="closeTab(this,\''+name+'\');" title="Закрыть '+name+'"/></div>';
 		printCode('from=ajax&func=printCode&data='+type+'&DMid='+id, id, type);
 	}
 }
@@ -450,7 +450,7 @@ var menuClass = function(){
 				html = "<div id='menuName'>"+name+"</div>";
 				if (type != 'tv')
 					html += "<div class='menuLink' onclick='viewCode(\""+type+"\","+id+",\""+name+"\");'><img src='media/style/"+theme+"/images/icons/save.png'/>Радактировать</div>";
-				html += "<div class='menuLink' onclick='box.getConfig(\""+type+"\", \""+id+"\");'><img src='media/style/"+theme+"/images/icons/save.png'/>Настройки</div>";
+				html += "<div class='menuLink' onclick='box.getConfig(\""+type+"\", \""+id+"\");'><img src='media/style/"+theme+"/images/icons/information.png'/>Настройки</div>";
 				switch (type){
 					case ('template') :
 						html += "<a class='menuLink' href='index.php?id="+id+"&amp;a=16' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Открыть</a>";
@@ -473,6 +473,28 @@ var menuClass = function(){
 				}
 				html += "<div class='menuLink' onclick='createCopy(\""+type+"\", \""+id+"\", \""+name+"\");'><img src='media/style/"+theme+"/images/icons/page_white_copy.png'/>Создать копию</div>";
 				html += "<div class='menuLink' onclick='deleteDoc(\""+type+"\", \""+id+"\", \""+name+"\");'><img src='media/style/"+theme+"/images/icons/delete.png'/>Удалить</div>";
+			break;
+			case (3) :
+				var name = el.innerHTML;
+				html = "<div id='menuName'>"+name+"</div>";
+				html += "<div class='menuLink' onclick='box.getConfig(\""+type+"\", \""+id+"\");'><img src='media/style/"+theme+"/images/icons/information.png'/>Настройки</div>";
+				switch (type){
+					case ('template') :
+						html += "<a class='menuLink' href='index.php?id="+id+"&amp;a=16' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Открыть</a>";
+					break;
+					case ('doc') :
+						html += "<a class='menuLink' href='/index.php?id="+id+"' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Просмотр</a>";
+					break;
+					case ('chunk') :
+						html += "<a class='menuLink' href='index.php?id="+id+"&amp;a=78' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Открыть</a>";
+					break;
+					case ('snippet') :
+						html += "<a class='menuLink' href='index.php?id="+id+"&amp;a=22' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Открыть</a>";
+					break;
+					case ('plugin') :
+						html += "<a class='menuLink' href='index.php?id="+id+"&amp;a=102' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Открыть</a>";
+					break;
+				}
 			break;
 		}
 		if (html){
