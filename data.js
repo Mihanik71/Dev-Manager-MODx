@@ -241,7 +241,7 @@ function viewCode(type, id, name){
 		tab.className = 'active_tab';
 		viewCM(id, type);
 	}else{
-		tabs.innerHTML += '<div class="active_tab" id="'+tab_id+'"><img src="../assets/modules/devmanager/images/stat.png" class="icon_tab" id="icon_tab_'+type+'_'+id+'"/><div onclick="viewCode(\''+type+'\','+id+',\''+name+'\')" style="float:left;padding-top:3px;" oncontextmenu="return menu.view(3, event, this, \''+type+'\', \''+id+'\');">'+name+'</div><img src="media/style/'+theme+'/images/icons/cancel.png" class="close_tab" onclick="closeTab(this,\''+name+'\');" title="Закрыть '+name+'"/></div>';
+		tabs.innerHTML += '<div class="active_tab" id="'+tab_id+'"><img src="../assets/modules/devmanager/images/stat.png" class="icon_tab" id="icon_tab_'+type+'_'+id+'" onclick="viewCode(\''+type+'\','+id+',\''+name+'\');"/><div onclick="viewCode(\''+type+'\','+id+',\''+name+'\');" style="float:left;padding-top:3px;" oncontextmenu="return menu.view(3, event, this, \''+type+'\', \''+id+'\');">'+name+'</div><img src="media/style/'+theme+'/images/icons/cancel.png" class="close_tab" onclick="closeTab(this,\''+name+'\');" title="Закрыть '+name+'"/></div>';
 		printCode('from=ajax&func=printCode&data='+type+'&DMid='+id, id, type);
 	}
 }
