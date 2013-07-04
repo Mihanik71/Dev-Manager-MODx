@@ -344,11 +344,11 @@ HEREDOC;
 				</tr>
 				<tr>
 					<td>Категория:</td>
-					<td><input name="category" type="text" maxlength="5" value="'.$arr['category'].'" class="inputBox" style="width:50px;"></td>
+					<td>'.$cat.'</td>
 				</tr>
 				<tr>
 					<td>Конфигурация:</td>
-					<td>'.$cat.'</td>
+					<td><textarea name="properties" class="inputBox">'.$arr['properties'].'</textarea></td>
 				</tr></table></form>
 				';
 				break;
