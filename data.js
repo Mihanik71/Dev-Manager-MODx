@@ -448,6 +448,26 @@ var menuClass = function(){
 				if (type != 'tv')
 					html += "<div class='menuLink' onclick='viewCode(\""+type+"\","+id+",\""+name+"\");'><img src='media/style/"+theme+"/images/icons/save.png'/>Радактировать</div>";
 				html += "<div class='menuLink' onclick='box.getConfig(\""+type+"\", \""+id+"\");'><img src='media/style/"+theme+"/images/icons/save.png'/>Настройки</div>";
+				switch (type){
+					case ('template') :
+						html += "<a class='menuLink' href='index.php?id="+id+"&amp;a=16' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Открыть</a>";
+					break;
+					case ('doc') :
+						html += "<a class='menuLink' href='/index.php?id="+id+"' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Просмотр</a>";
+					break;
+					case ('tv') :
+						html += "<a class='menuLink' href='index.php?id="+id+"&amp;a=301' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Открыть</a>";
+					break;
+					case ('chunk') :
+						html += "<a class='menuLink' href='index.php?id="+id+"&amp;a=78' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Открыть</a>";
+					break;
+					case ('snippet') :
+						html += "<a class='menuLink' href='index.php?id="+id+"&amp;a=22' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Открыть</a>";
+					break;
+					case ('plugin') :
+						html += "<a class='menuLink' href='index.php?id="+id+"&amp;a=102' target='_blank'><img src='media/style/"+theme+"/images/icons/page_white_magnify.png'/>Открыть</a>";
+					break;
+				}
 				html += "<div class='menuLink' onclick='createCopy(\""+type+"\", \""+id+"\", \""+name+"\");'><img src='media/style/"+theme+"/images/icons/page_white_copy.png'/>Создать копию</div>";
 				html += "<div class='menuLink' onclick='deleteDoc(\""+type+"\", \""+id+"\", \""+name+"\");'><img src='media/style/"+theme+"/images/icons/delete.png'/>Удалить</div>";
 			break;

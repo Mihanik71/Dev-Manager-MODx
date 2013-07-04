@@ -41,6 +41,10 @@
 	border-bottom-color: #dcdcdc;
 	color: #333;
 }
+a.menuLink{
+	text-decoration:none;
+	color: #222;
+}
 #menuName {
 	color: #fff;
 	text-align: left;
