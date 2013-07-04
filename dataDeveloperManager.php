@@ -59,6 +59,7 @@ class dataDeveloperManager{
 				$result = $this->modx->db->insert($fields, $this->dbTable['template']); 
 				break;
 		}
+		$this->modx->clearCache();
 		return ($format == 'json')?json_encode($result):$result;
 	}
 	public function createCopy($type, $id, $format = 'html'){
@@ -80,28 +81,31 @@ class dataDeveloperManager{
 				break;
 		}
 		$result = $this->create($type, $arr);
+		$this->modx->clearCache();
 		return ($format == 'json')?json_encode($result):$result;
 	}
 	public function delete($type, $id, $format = 'html'){
 		switch($type){
-			case 'doc'		: $result = $this->modx->db->delete($this->dbTable['doc'], 'id = '.$id); break;
+			case 'doc'	: $result = $this->modx->db->delete($this->dbTable['doc'], 'id = '.$id); break;
 			case 'chunk'	: $result = $this->modx->db->delete($this->dbTable['chunk'], 'id = '.$id); break;
-			case 'tv'		: $result = $this->modx->db->delete($this->dbTable['tv'], 'id = '.$id); break;
+			case 'tv'	: $result = $this->modx->db->delete($this->dbTable['tv'], 'id = '.$id); break;
 			case 'snippet'	: $result = $this->modx->db->delete($this->dbTable['snippet'], 'id = '.$id); break;
 			case 'plugin'	: $result = $this->modx->db->delete($this->dbTable['plugin'], 'id = '.$id); break;
 			case 'template'	: $result = $this->modx->db->delete($this->dbTable['template'], 'id = '.$id); break;
 		}
+		$this->modx->clearCache();
 		return ($format == 'json')?json_encode($result):$result;
 	}
 	public function update($type, $fields, $id, $format = 'html'){
 		switch($type){
-			case 'doc'		: $result = $this->modx->db->update($fields, $this->dbTable['doc'], 'id = "'.$id .'"'); break;
+			case 'doc'	: $result = $this->modx->db->update($fields, $this->dbTable['doc'], 'id = "'.$id .'"'); break;
 			case 'chunk'	: $result = $this->modx->db->update($fields, $this->dbTable['chunk'], 'id = "'.$id .'"'); break;
-			case 'tv'		: $result = $this->modx->db->update($fields, $this->dbTable['tv'], 'id = "'.$id .'"'); break;
+			case 'tv'	: $result = $this->modx->db->update($fields, $this->dbTable['tv'], 'id = "'.$id .'"'); break;
 			case 'snippet'	: $result = $this->modx->db->update($fields, $this->dbTable['snippet'], 'id = "'.$id .'"'); break;
 			case 'plugin'	: $result = $this->modx->db->update($fields, $this->dbTable['plugin'], 'id = "'.$id .'"'); break;
 			case 'template'	: $result = $this->modx->db->update($fields, $this->dbTable['template'], 'id = "'.$id .'"'); break;
 		}
+		$this->modx->clearCache();
 		return ($format == 'json')?json_encode($result):$result;
 	}
 	public function getData($type, $id, $format = 'html'){
