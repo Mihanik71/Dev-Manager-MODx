@@ -83,23 +83,25 @@ class DeveloperManager extends dataDeveloperManager{
 			<img src="media/style/{$this->config['theme']}/images/icons/arrow_down.png" onclick="viewAllCategories();" title="Развернуть всё"/>	
 			<img src="media/style/{$this->config['theme']}/images/icons/arrow_up.png" onclick="spoilAllCategories();" title="Свернуть всё"/>
 		</div>
-		<div onclick ="spoil('docBlock');" oncontextmenu="return menu.view(1, event, this, 'doc');" class="category">Документы:</div>
-		<div id="docBlock" class="spoilCategory" style="display:none;">
+		<div class="cat">
+			<div onclick ="spoil('docBlock');" oncontextmenu="return menu.view(1, event, this, 'doc');" class="category">Документы:</div>
+			<div id="docBlock" class="spoilCategory" style="display:none;">
+			</div>
+			<div onclick = "spoil('chunkBlock');" oncontextmenu="return menu.view(1, event, this, 'chunk');" class="category">Чанки:</div>
+			<div id="chunkBlock" class="spoilCategory" style="display:none;">
+			</div>
+			<div onclick = "spoil('tvBlock');" oncontextmenu="return menu.view(1, event, this, 'tv');" class="category">TV параметры:</div>
+			<div id="tvBlock" class="spoilCategory" style="display:none;">
+			</div>
+			<div onclick = "spoil('snippetBlock');" oncontextmenu="return menu.view(1, event, this, 'snippet');" class="category">Сниппеты:</div>
+			<div id="snippetBlock" class="spoilCategory" style="display:none;">
+			</div>
+			<div onclick = "spoil('pluginBlock');" oncontextmenu="return menu.view(1, event, this, 'plugin');" class="category">Плагины:</div>
+			<div id="pluginBlock" class="spoilCategory" style="display:none;">
+			</div>
+			<div onclick = "spoil('templateBlock');" oncontextmenu="return menu.view(1, event, this, 'template');" class="category">Шаблоны:</div>
+			<div id="templateBlock" class="spoilCategory" style="display:none;"></div>
 		</div>
-		<div onclick = "spoil('chunkBlock');" oncontextmenu="return menu.view(1, event, this, 'chunk');" class="category">Чанки:</div>
-		<div id="chunkBlock" class="spoilCategory" style="display:none;">
-		</div>
-		<div onclick = "spoil('tvBlock');" oncontextmenu="return menu.view(1, event, this, 'tv');" class="category">TV параметры:</div>
-		<div id="tvBlock" class="spoilCategory" style="display:none;">
-		</div>
-		<div onclick = "spoil('snippetBlock');" oncontextmenu="return menu.view(1, event, this, 'snippet');" class="category">Сниппеты:</div>
-		<div id="snippetBlock" class="spoilCategory" style="display:none;">
-		</div>
-		<div onclick = "spoil('pluginBlock');" oncontextmenu="return menu.view(1, event, this, 'plugin');" class="category">Плагины:</div>
-		<div id="pluginBlock" class="spoilCategory" style="display:none;">
-		</div>
-		<div onclick = "spoil('templateBlock');" oncontextmenu="return menu.view(1, event, this, 'template');" class="category">Шаблоны:</div>
-		<div id="templateBlock" class="spoilCategory" style="display:none;"></div>
 	</div>
 	<div id="right">
 		<div id="tabs">

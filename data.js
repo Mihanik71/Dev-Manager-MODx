@@ -232,7 +232,7 @@ function viewCode(type, id, name){
 	var data_active = $byClass('CodeMirror cm-s-default CodeMirror-wrap');
 	if (data_active[0] != undefined)
 		remove(data_active[0]);
-	$('buttons').innerHTML = '<img src="../assets/modules/devmanager/images/save.png" onclick="saveData(\''+type+'\','+id+');" title="Сохранить"/>'+
+	$('buttons').innerHTML = '<img src="media/style/'+theme+'/images/icons/save.png" onclick="saveData(\''+type+'\','+id+');" title="Сохранить"/>'+
 		'<img src="../assets/modules/devmanager/images/undo.png" onclick="myCodeMirror.undo();" title="Отменить"/>'+
 		'<img src="../assets/modules/devmanager/images/redo.png" onclick="myCodeMirror.redo();" title="Повторить"/>'+
 		'<img src="../assets/modules/devmanager/images/search.png" onclick="search.doSearch(myCodeMirror);" title="Найти"/>'+

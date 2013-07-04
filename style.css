@@ -54,9 +54,9 @@
 	background: #86939E;
 }
 .left{
-	width:160px;
-	overflow-x: auto;
+	width:175px;
 	float:left;
+	height:100%;
 }
 .left a{
 	font-size:90%;
@@ -71,7 +71,8 @@ a.disabled{
 }
 #right{
 	float:left;
-	width: calc(100% - 160px);
+	width: calc(100% - 180px);
+	margin-left:175px;
 }
 #tabs{
 	width:100%;
@@ -86,14 +87,15 @@ a.disabled{
 .tab{
 	float:left;
 	padding:0 10px;
-	background: -moz-linear-gradient(#f5f5f5, #DDDDDD);
-	background: -webkit-gradient(linear, 0 0, 0 100%, from(#f5f5f5), to(#DDDDDD));
-	background: -o-linear-gradient(#f5f5f5, #DDDDDD);
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#f5f5f5,endColorstr=#DDDDDD);
+	
 	zoom: 1;
 	-moz-box-shadow: 0px 1px 0px #fff inset;
 	-webkit-box-shadow: 0px 1px 0px #fff inset;
 	box-shadow: 0px 1px 0px #fff inset;
+	background: -moz-linear-gradient(#D1CDCD, #DDDDDD);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#D1CDCD), to(#DDDDDD));
+	background: -o-linear-gradient(#D1CDCD, #DDDDDD);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#D1CDCD,endColorstr=#DDDDDD);
 	color: #777;
 	padding: 0 10px;
 	font-weight: bold;
@@ -104,10 +106,10 @@ a.disabled{
 .active_tab{
 	float:left;
 	padding:0 10px;
-	background: -moz-linear-gradient(#D1CDCD, #DDDDDD);
-	background: -webkit-gradient(linear, 0 0, 0 100%, from(#D1CDCD), to(#DDDDDD));
-	background: -o-linear-gradient(#D1CDCD, #DDDDDD);
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#D1CDCD,endColorstr=#DDDDDD);
+	background: -moz-linear-gradient(#f5f5f5, #DDDDDD);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#f5f5f5), to(#DDDDDD));
+	background: -o-linear-gradient(#f5f5f5, #DDDDDD);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#f5f5f5,endColorstr=#DDDDDD);
 	zoom: 1;
 	-moz-box-shadow: 0px 1px 0px #fff inset;
 	-webkit-box-shadow: 0px 1px 0px #fff inset;
@@ -194,6 +196,7 @@ a.disabled{
 	position:fixed;
 	margin-top: 26px;
 	z-index:8;
+	background:#f7f7f7;
 }
 #buttons img{
 	cursor: pointer;
@@ -214,9 +217,18 @@ a.disabled{
 .category_panel{
 	height: 20px;
 	width: 100%;
+	position:fixed;
 }
 .category_panel img{
 	width: 16px;
 	padding-top: 3px;
 	cursor: pointer;
+	margin-right: 3px;
+}
+.cat{
+	position: fixed;
+	overflow: auto;
+	height: calc(100% - 20px);
+	width: 175px;
+	top:20px;
 }
