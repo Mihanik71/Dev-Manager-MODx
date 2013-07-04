@@ -198,6 +198,15 @@ HEREDOC;
 		$arr = $this->getConfig($type, $id);
 		switch($type){
 			case 'doc': 
+				$template_arr = $this->getAll('template');
+				$template = '<select name="template" class="inputBox" style="width:300px;"><option value="0">(blank)</option>';
+				foreach($template_arr as $value){
+					if($arr['template'] == $value['id'])
+						$template.= '<option value="'.$value['id'].'" selected=selected>'.$value['templatename'].'</option>';
+					else
+						$template.= '<option value="'.$value['id'].'">'.$value['templatename'].'</option>';
+				}
+				$template .= '</select>';
 				$result ='
 				<form><table><tr>
 					<td>Заголовок:</td>
@@ -221,12 +230,21 @@ HEREDOC;
 				</tr>
 				<tr>
 					<td>Шаблон:</td>
-					<td><input name="template" type="text" maxlength="5" value="'.$arr['template'].'" class="inputBox" style="width:50px;"></td>
+					<td>'.$template.'</td>
 				</tr>
 				</table></form>
 				';	
 				break;
 			case 'tv':
+				$cat_arr = $this->selectCategories();
+				$cat = '<select name="category" class="inputBox" style="width:300px;"><option value="0"> </option>';
+				foreach($cat_arr as $value){
+					if($arr['category'] == $value['id'])
+						$cat.= '<option value="'.$value['id'].'" selected=selected>'.$value['category'].'</option>';
+					else
+						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
+				}
+				$cat .= '</select>';
 				$result ='
 				<form><table><tr>
 					<td>Название:</td>
@@ -258,12 +276,21 @@ HEREDOC;
 				</tr>
 				<tr>
 					<td>Категория:</td>
-					<td><input name="category" type="text" maxlength="5" value="'.$arr['category'].'" class="inputBox" style="width:50px;"></td>
+					<td>'.$cat.'</td>
 				</tr></table></form>
 				';
 				break;
 			case 'chunk':
 			case 'snippet':
+				$cat_arr = $this->selectCategories();
+				$cat = '<select name="category" class="inputBox" style="width:300px;"><option value="0"> </option>';
+				foreach($cat_arr as $value){
+					if($arr['category'] == $value['id'])
+						$cat.= '<option value="'.$value['id'].'" selected=selected>'.$value['category'].'</option>';
+					else
+						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
+				}
+				$cat .= '</select>';
 				$result ='
 				<form><table><tr>
 					<td>Название:</td>
@@ -275,11 +302,20 @@ HEREDOC;
 				</tr>
 				<tr>
 					<td>Категория:</td>
-					<td><input name="category" type="text" maxlength="5" value="'.$arr['category'].'" class="inputBox" style="width:50px;"></td>
+					<td>'.$cat.'</td>
 				</tr></table></form>
 				';
 				break;
 			case 'plugin':
+				$cat_arr = $this->selectCategories();
+				$cat = '<select name="category" class="inputBox" style="width:300px;"><option value="0"> </option>';
+				foreach($cat_arr as $value){
+					if($arr['category'] == $value['id'])
+						$cat.= '<option value="'.$value['id'].'" selected=selected>'.$value['category'].'</option>';
+					else
+						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
+				}
+				$cat .= '</select>';
 				$result ='
 				<form><table><tr>
 					<td>Название:</td>
@@ -295,11 +331,20 @@ HEREDOC;
 				</tr>
 				<tr>
 					<td>Конфигурация:</td>
-					<td><textarea name="properties" class="inputBox">'.$arr['properties'].'</textarea></td>
+					<td>'.$cat.'</td>
 				</tr></table></form>
 				';
 				break;
 			case 'template':
+				$cat_arr = $this->selectCategories();
+				$cat = '<select name="category" class="inputBox" style="width:300px;"><option value="0"> </option>';
+				foreach($cat_arr as $value){
+					if($arr['category'] == $value['id'])
+						$cat.= '<option value="'.$value['id'].'" selected=selected>'.$value['category'].'</option>';
+					else
+						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
+				}
+				$cat .= '</select>';
 				$result ='<form><table><tr>
 					<td>Название:</td>
 					<td><input name="templatename" type="text" maxlength="100" value="'.$arr['templatename'].'" class="inputBox" style="width:140px;"></td>
@@ -310,7 +355,7 @@ HEREDOC;
 				</tr>
 				<tr>
 					<td>Категория:</td>
-					<td><input name="category" type="text" maxlength="5" value="'.$arr['category'].'" class="inputBox" style="width:50px;"></td>
+					<td>'.$cat.'</td>
 				</tr></table></form>
 				';
 				break;
