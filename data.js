@@ -296,6 +296,9 @@ function viewCategory(elem){
 	}
 	loadLeftBlock();
 }
+function clearCache(){
+	printResult('from=ajax&func=clearCache');
+}
 var searchClass = function(){	
 	var queryDialog = '<img src="../assets/modules/devmanager/images/search.png" style="display:block;margin-top:5px;float:left;margin-right:5px;">Поиск: <input type="text" style="width: 10em"/><span style="color: #888"></span>';
 	var replaceQueryDialog = '<img src="../assets/modules/devmanager/images/search.png" style="display:block;margin-top:5px;float:left;margin-right:5px;"> Заменить: <input type="text" style="width: 10em"/>';

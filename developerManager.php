@@ -49,6 +49,9 @@ class DeveloperManager extends dataDeveloperManager{
 			case 'create':
 				echo $this->createNew($this->parameters['data']);
 				break;
+			case 'clearCache':
+				echo $this->clearCache();
+				break;
 		}
 	}
 	private function printPage(){
@@ -78,10 +81,12 @@ class DeveloperManager extends dataDeveloperManager{
 <body>
 	<div class="left">
 		<div class="category_panel">
-			<img src="../assets/modules/devmanager/images/cat.gif" onclick="viewCategory(this);" style="width: 20px;" title="Показать категории"/>
+			<img src="media/style/{$this->config['theme']}/images/tree/sitemap.png" onclick="viewCategory(this);" title="Показать категории"/>
 			<img src="media/style/{$this->config['theme']}/images/icons/sort.png" onclick="sort(this);" title="Сортировать по имени"/>
 			<img src="media/style/{$this->config['theme']}/images/icons/arrow_down.png" onclick="viewAllCategories();" title="Развернуть всё"/>	
 			<img src="media/style/{$this->config['theme']}/images/icons/arrow_up.png" onclick="spoilAllCategories();" title="Свернуть всё"/>
+			<img src="media/style/{$this->config['theme']}/images/icons/refresh.png" onclick="loadLeftBlock();" title="Обновить"/>
+			<img src="media/style/{$this->config['theme']}/images/icons/trash.png" onclick="clearCache();" title="Очистить кэш"/>
 		</div>
 		<div class="cat">
 			<div onclick ="spoil('docBlock');" oncontextmenu="return menu.view(1, event, this, 'doc');" class="category">Документы:</div>

@@ -158,5 +158,8 @@ class dataDeveloperManager{
 		for ($i = 1; $i < $qty; $i++) $result[$i] = mysql_fetch_assoc($rs);
 		return ($format == 'json')?json_encode($result):$result;
 	}
+	public function clearCache(){
+		$this->modx->clearCache();
+	}
 }
 ?>
