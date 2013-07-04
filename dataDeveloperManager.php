@@ -135,7 +135,7 @@ class dataDeveloperManager{
 	}
 	public function getAll($type, $sort = 'id', $format = 'html'){
 		switch($type){
-			case 'doc'		: $result = $this->selectAll('id, pagetitle, longtitle, published', $this->dbTable['doc'], $sort); break;
+			case 'doc'		: $result = $this->selectAll('id, pagetitle, longtitle, published, contentType', $this->dbTable['doc'], $sort); break;
 			case 'chunk'	: $result = $this->selectAll('id, name, description, category', $this->dbTable['chunk'], $sort); break;
 			case 'tv'		: $result = $this->selectAll('id, name, description, category', $this->dbTable['tv'], $sort); break;
 			case 'snippet'	: $result = $this->selectAll('id, name, description, category', $this->dbTable['snippet'], $sort); break;

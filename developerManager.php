@@ -138,8 +138,25 @@ HEREDOC;
 		$arr = $this->getAll($type, $par);
 		switch($type){
 			case 'doc': 
-				foreach ($arr as $i)
-					$result .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['pagetitle'].'\');return false;" title="'.$i['longtitle'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['pagetitle'].'</a></br>';
+				foreach ($arr as $i){
+					$menu = 'oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');"';
+					switch($i['contentType']){
+						case 'text/css':
+							$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_css.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
+						break;
+						case 'text/xml':
+							$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_xml.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
+						break;
+						case 'text/javascript':
+							$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_js.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
+						break;
+						case 'text/html':
+							$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_html.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
+						break;
+					}
+					$dis = ($i['published'] == '0')?'disabled':'';
+					$result .= $img.'<a href="#" style="margin:0;background:none;padding:0;" class="'.$dis.'" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['pagetitle'].'\');return false;" title="'.$i['longtitle'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['pagetitle'].'</a></br>';
+				}
 				break;
 			case 'tv':
 				foreach ($arr as $i)
