@@ -16,64 +16,39 @@ function spoil(block_id){
 	block.style.display = ("none" == block.style.display)? "block" : "none";
 }
 // ajax
-function createRequest(){
-	if (window.XMLHttpRequest) req = new XMLHttpRequest();
-	else if (window.ActiveXObject){
-		try{
-			req = new ActiveXObject('Msxml2.XMLHTTP');
-		}catch (e){}
-		try{
-			req = new ActiveXObject('Microsoft.XMLHTTP');
-		}catch (e){}
+var ajaxClass = (function(){
+	function createRequest(){
+		if (window.XMLHttpRequest) req = new XMLHttpRequest();
+		else if (window.ActiveXObject){
+			try{
+				req = new ActiveXObject('Msxml2.XMLHTTP');
+			}catch (e){}
+			try{
+				req = new ActiveXObject('Microsoft.XMLHTTP');
+			}catch (e){}
+		}
+		return req;
 	}
-	return req;
-}
-function printData(parameters, block){
-	req = createRequest();
-	if (req){
-		req.open("POST", '', false);
-		req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-		req.send(parameters);
-		if (req.status == 200)
-			$(block).innerHTML = req.responseText;
-	}
-}
-function printCode(parameters, id, type){
-	req = createRequest();
-	if (req){
-		req.open("POST", '', false);
-		req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-		req.send(parameters);
-		if (req.status == 200){
-			$('data_tabs').innerHTML += '<textarea id="data_tab_'+type+'_'+id+'" style="width: calc(100% - 6px);">'+req.responseText+'</textarea>';
-			viewCM(id, type);
+	return function(par, func){
+		var req = createRequest();
+		if (req){
+			req.open("POST", '', true);
+			req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			req.send(par);
+			req.onreadystatechange = function() {
+				if (req.readyState != 4) return;
+				if (req.status == 200)
+					func(req.responseText);
+			}
 		}
 	}
-}
-function printConfig(parameters){
-	req = createRequest();
-	if (req){
-		req.open("POST", '', false);
-		req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-		req.send(parameters);
-		if (req.status == 200){
-			$('data_menu').innerHTML = req.responseText;
-		}
-	}
-}
-function printResult(parameters){
-	req = createRequest();
-	if (req){
-		req.open("POST", '', false);
-		req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-		req.send(parameters);
-		if (req.status == 200)
-			loadLeftBlock();
-	}
-}
+})();
 //
-function viewCM(id, type){
-	var mode = (type == 'snippet'||type == 'plugin')?'application/x-httpd-php-open':'htmlmixed';
+function viewCM(id, type, lang){
+	if(type != 'doc')
+		var mode = (type == 'snippet'||type == 'plugin')?'application/x-httpd-php-open':'htmlmixed';
+	else
+		var mode = lang;
 	CodeMirror.defineMode("MODx-"+mode, function(config, parserConfig) {
 		var mustacheOverlay = {
 			token: function(stream, state) {
@@ -187,19 +162,19 @@ function viewCM(id, type){
 }
 function createCopy(str, id, name){
 	if(confirm("Bы уверены, что хотите создать копию "+name+"?"))
-		printResult('from=ajax&func=createCopy&data='+str+'&DMid='+id);
+		var ajax = new ajaxClass('from=ajax&func=createCopy&data='+str+'&DMid='+id, function(result){loadLeftBlock();});
 }
 function deleteDoc(str, id, name){
-	if(confirm("Bы уверены, что хотите удалить "+name+"?"))
-		printResult('from=ajax&func=delete&data='+str+'&DMid='+id);
+	if(confirm("Bы уверены, что хотите удалить "+name+"?")) 
+		var ajax = new ajaxClass('from=ajax&func=delete&data='+str+'&DMid='+id, function(result){loadLeftBlock();});
 }
 function loadLeftBlock(){
-	printData('from=ajax&func=printAll&data=doc&cat='+cat+'&sort='+sorted, 'docBlock');
-	printData('from=ajax&func=printAll&data=chunk&cat='+cat+'&sort='+sorted, 'chunkBlock');
-	printData('from=ajax&func=printAll&data=tv&cat='+cat+'&sort='+sorted, 'tvBlock');
-	printData('from=ajax&func=printAll&data=snippet&cat='+cat+'&sort='+sorted, 'snippetBlock');
-	printData('from=ajax&func=printAll&data=plugin&cat='+cat+'&sort='+sorted, 'pluginBlock');
-	printData('from=ajax&func=printAll&data=template&cat='+cat+'&sort='+sorted, 'templateBlock');
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=doc&cat='+cat+'&sort='+sorted, function(result){$('docBlock').innerHTML = result;});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=chunk&cat='+cat+'&sort='+sorted, function(result){$('chunkBlock').innerHTML = result;});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=tv&cat='+cat+'&sort='+sorted, function(result){$('tvBlock').innerHTML = result;});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=snippet&cat='+cat+'&sort='+sorted, function(result){$('snippetBlock').innerHTML = result;});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=plugin&cat='+cat+'&sort='+sorted, function(result){$('pluginBlock').innerHTML = result;});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=template&cat='+cat+'&sort='+sorted, function(result){$('templateBlock').innerHTML = result;});
 }
 function closeTab(elem,name){
 	var stat = elem.parentNode.getElementsByClassName('icon_tab')[0].getAttribute('src');
@@ -222,10 +197,8 @@ function closeTab(elem,name){
 		$('buttons').innerHTML = '';
 	}	
 }
-function viewCode(type, id, name){
-	var tabs = $('tabs');
-	var tab_id = 'tab_'+type+'_'+id;
-	var tab = $(tab_id);
+function viewCode(type, id, name, lang){
+	var tab = $('tab_'+type+'_'+id);
 	var active = $byClass('active_tab');
 	if (active[0] != undefined)
 		active[0].className = 'tab';
@@ -239,18 +212,19 @@ function viewCode(type, id, name){
 		'<img src="../assets/modules/devmanager/images/replase.png" onclick="search.replase(myCodeMirror);" title="Заменить"/>';
 	if (tab != undefined){
 		tab.className = 'active_tab';
-		viewCM(id, type);
+		viewCM(id, type, lang);
 	}else{
-		tabs.innerHTML += '<div class="active_tab" id="'+tab_id+'"><img src="../assets/modules/devmanager/images/stat.png" class="icon_tab" id="icon_tab_'+type+'_'+id+'" onclick="viewCode(\''+type+'\','+id+',\''+name+'\');"/><div onclick="viewCode(\''+type+'\','+id+',\''+name+'\');" style="float:left;padding-top:3px;" oncontextmenu="return menu.view(3, event, this, \''+type+'\', \''+id+'\');">'+name+'</div><img src="media/style/'+theme+'/images/icons/cancel.png" class="close_tab" onclick="closeTab(this,\''+name+'\');" title="Закрыть '+name+'"/></div>';
-		printCode('from=ajax&func=printCode&data='+type+'&DMid='+id, id, type);
+		$('tabs').innerHTML += '<div class="active_tab" id="'+'tab_'+type+'_'+id+'"><img src="../assets/modules/devmanager/images/stat.png" class="icon_tab" id="icon_tab_'+type+'_'+id+'" onclick="viewCode(\''+type+'\','+id+',\''+name+'\',\''+lang+'\');"/><div onclick="viewCode(\''+type+'\','+id+',\''+name+'\',\''+lang+'\');" style="float:left;padding-top:3px;" oncontextmenu="return menu.view(3, event, this, \''+type+'\', \''+id+'\');">'+name+'</div><img src="media/style/'+theme+'/images/icons/cancel.png" class="close_tab" onclick="closeTab(this,\''+name+'\');" title="Закрыть '+name+'"/></div>';	
+		var ajax = new ajaxClass('from=ajax&func=printCode&data='+type+'&DMid='+id, function(result){
+			$('data_tabs').innerHTML += '<textarea id="data_tab_'+type+'_'+id+'" style="width: calc(100% - 6px);">'+req.responseText+'</textarea>';
+			viewCM(id, type, lang);
+		});
 	}
 }
 function saveData(type, id){
 	var content = encodeURIComponent(myCodeMirror.doc.getValue());
-	var str = 'from=ajax&func=saveData&data='+type+'&DMid='+id+'&content='+content;
-	printResult(str);
+	var ajax = new ajaxClass('from=ajax&func=saveData&data='+type+'&DMid='+id+'&content='+content, function(result){$('icon_tab_'+type+'_'+id).setAttribute('src', '../assets/modules/devmanager/images/stat.png');});
 	$('data_tab_'+type+'_'+id).innerHTML = myCodeMirror.doc.getValue();
-	$('icon_tab_'+type+'_'+id).setAttribute('src', '../assets/modules/devmanager/images/stat.png');
 }
 function viewAllCategories(){
 	var arr = $byClass('spoilCategory');
@@ -284,7 +258,7 @@ function sort(elem){
 	loadLeftBlock();
 }
 function createDoc(type){
-	printResult('from=ajax&func=create&data='+type);
+	var ajax = new ajaxClass('from=ajax&func=create&data='+type, function(result){loadLeftBlock();});
 }
 function viewCategory(elem){
 	if(cat == '1'){
@@ -296,9 +270,7 @@ function viewCategory(elem){
 	}
 	loadLeftBlock();
 }
-function clearCache(){
-	printResult('from=ajax&func=clearCache');
-}
+function clearCache(){var ajax = new ajaxClass('from=ajax&func=clearCache', function(result){loadLeftBlock();});}
 var searchClass = function(){	
 	var queryDialog = '<img src="../assets/modules/devmanager/images/search.png" style="display:block;margin-top:5px;float:left;margin-right:5px;">Поиск: <input type="text" style="width: 10em"/><span style="color: #888"></span>';
 	var replaceQueryDialog = '<img src="../assets/modules/devmanager/images/search.png" style="display:block;margin-top:5px;float:left;margin-right:5px;"> Заменить: <input type="text" style="width: 10em"/>';
@@ -425,31 +397,21 @@ var menuClass = function(){
 		}
 		return {x:x, y:y};
 	}
-	function addHandler(object, event, handler, useCapture){
-		if (object.addEventListener){
-			object.addEventListener(event, handler, useCapture ? useCapture : false);
-		}
-		else if (object.attachEvent){
-			object.attachEvent('on' + event, handler);
-		}
-	}
-	this.view = function(data, evt, el, type, id){
+	function addHandler(object, event, handler, useCapture){if (object.addEventListener){object.addEventListener(event, handler, useCapture ? useCapture : false);}else if (object.attachEvent){object.attachEvent('on' + event, handler);}}
+	this.view = function(data, evt, el, type, id, lang){
 		evt = evt || window.event;
 		evt.cancelBubble = true;
 		var menu = $("contextMenu");
-		var html = "";
+		var name = el.innerHTML;
+		var html = "<div id='menuName'>"+name+"</div>";
 		switch (data) {
 			case (1) :
-				var name = el.innerHTML;
-				html = "<div id='menuName'>"+name+"</div>";
 				html += "<div class='menuLink' onclick='createDoc(\""+type+"\");'><img src='media/style/"+theme+"/images/icons/folder_page_add.png'/>Создать новый</div>";
 				html += "<div class='menuLink' onclick='spoil(\""+type+"Block\");'><img src='media/style/"+theme+"/images/icons/arrow_down.png'/>Свернуть/развернуть</div>";
 			break;
 			case (2) :
-				var name = el.innerHTML;
-				html = "<div id='menuName'>"+name+"</div>";
 				if (type != 'tv')
-					html += "<div class='menuLink' onclick='viewCode(\""+type+"\","+id+",\""+name+"\");'><img src='media/style/"+theme+"/images/icons/save.png'/>Радактировать</div>";
+					html += "<div class='menuLink' onclick='viewCode(\""+type+"\","+id+",\""+name+"\",\""+lang+"\");'><img src='media/style/"+theme+"/images/icons/save.png'/>Радактировать</div>";
 				html += "<div class='menuLink' onclick='box.getConfig(\""+type+"\", \""+id+"\");'><img src='media/style/"+theme+"/images/icons/information.png'/>Настройки</div>";
 				switch (type){
 					case ('template') :
@@ -475,8 +437,6 @@ var menuClass = function(){
 				html += "<div class='menuLink' onclick='deleteDoc(\""+type+"\", \""+id+"\", \""+name+"\");'><img src='media/style/"+theme+"/images/icons/delete.png'/>Удалить</div>";
 			break;
 			case (3) :
-				var name = el.innerHTML;
-				html = "<div id='menuName'>"+name+"</div>";
 				html += "<div class='menuLink' onclick='box.getConfig(\""+type+"\", \""+id+"\");'><img src='media/style/"+theme+"/images/icons/information.png'/>Настройки</div>";
 				switch (type){
 					case ('template') :
@@ -505,12 +465,7 @@ var menuClass = function(){
 		}
 		return false;
 	}
-	addHandler(document, "contextmenu", function(){
-		$("contextMenu").style.display = "none";
-	});
-	addHandler(document, "click", function(){
-		$("contextMenu").style.display = "none";
-	});
+	addHandler(document, "click", function(){$("contextMenu").style.display = "none";});
 }
 var menu = new menuClass();
 var boxClass = function(){
@@ -522,12 +477,12 @@ var boxClass = function(){
 		for (var i = 0, length = arr.length; i < length; i++)
 			if (i in arr)
 				str += '&'+arr[i].name+'='+encodeURIComponent(arr[i].value||arr[i].innerHTML);
-		printResult(str);
+		var ajax = new ajaxClass(str, function(result){loadLeftBlock();});
 		close();
 	}
 	this.getConfig = getConfig = function(type, id){
 		view();
-		printConfig('from=ajax&func=printConfig&data='+type+'&DMid='+id);
+		var ajax = new ajaxClass('from=ajax&func=printConfig&data='+type+'&DMid='+id, function(result){$('data_menu').innerHTML = result;});
 		$('saveConfig').onclick = function(){saveConfig(type, id);}
 	}
 }
