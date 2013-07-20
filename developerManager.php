@@ -76,6 +76,7 @@ class DeveloperManager extends dataDeveloperManager{
 		var sorted = 'id';
 		var cat = '0';
 		var myCodeMirror, req;
+		loadLeftBlock();
 	</script>
 </head>
 <body>
@@ -83,8 +84,8 @@ class DeveloperManager extends dataDeveloperManager{
 		<div class="category_panel">
 			<img src="media/style/{$this->config['theme']}/images/tree/sitemap.png" onclick="viewCategory(this);" title="Показать категории"/>
 			<img src="media/style/{$this->config['theme']}/images/icons/sort.png" onclick="sort(this);" title="Сортировать по имени"/>
-			<img src="media/style/{$this->config['theme']}/images/icons/arrow_down.png" onclick="viewAllCategories();" title="Развернуть всё"/>	
-			<img src="media/style/{$this->config['theme']}/images/icons/arrow_up.png" onclick="spoilAllCategories();" title="Свернуть всё"/>
+			<img src="media/style/{$this->config['theme']}/images/icons/arrow_down.png" onclick="displayAllCategories('');" title="Развернуть всё"/>	
+			<img src="media/style/{$this->config['theme']}/images/icons/arrow_up.png" onclick="displayAllCategories('none');" title="Свернуть всё"/>
 			<img src="media/style/{$this->config['theme']}/images/icons/refresh.png" onclick="loadLeftBlock();" title="Обновить"/>
 			<img src="media/style/{$this->config['theme']}/images/icons/trash.png" onclick="clearCache();" title="Очистить кэш"/>
 		</div>
@@ -135,6 +136,10 @@ HEREDOC;
 	}
 	private function printAll($type, $par = 'id'){
 		$result = '';
+		if($par=='name'){
+			if($type =='doc') $par = 'pagetitle';
+			if($type =='template') $par = 'templatename';
+		}
 		$arr = $this->getAll($type, $par);
 		switch($type){
 			case 'doc': 

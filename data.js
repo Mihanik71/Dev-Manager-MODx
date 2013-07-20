@@ -1,7 +1,3 @@
-window.onload = function(){
-	loadLeftBlock();
-}
-// min functions
 function $(block){
 	return document.getElementById(block);
 }
@@ -15,7 +11,6 @@ function spoil(block_id){
 	var block = $(block_id);
 	block.style.display = ("none" == block.style.display)? "block" : "none";
 }
-// ajax
 var ajaxClass = (function(){
 	function createRequest(){
 		if (window.XMLHttpRequest) req = new XMLHttpRequest();
@@ -43,7 +38,6 @@ var ajaxClass = (function(){
 		}
 	}
 })();
-//
 function viewCM(id, type, lang){
 	if(type != 'doc')
 		var mode = (type == 'snippet'||type == 'plugin')?'application/x-httpd-php-open':'htmlmixed';
@@ -176,7 +170,7 @@ function loadLeftBlock(){
 	var ajax = new ajaxClass('from=ajax&func=printAll&data=plugin&cat='+cat+'&sort='+sorted, function(result){$('pluginBlock').innerHTML = result;});
 	var ajax = new ajaxClass('from=ajax&func=printAll&data=template&cat='+cat+'&sort='+sorted, function(result){$('templateBlock').innerHTML = result;});
 }
-function closeTab(elem,name){
+function closeTab(elem, name){
 	var stat = elem.parentNode.getElementsByClassName('icon_tab')[0].getAttribute('src');
 	if (stat == '../assets/modules/devmanager/images/stat2.png'){
 		if(confirm("Bы уверены, что хотите закрыть '"+name+"'?")){
@@ -226,52 +220,33 @@ function saveData(type, id){
 	var ajax = new ajaxClass('from=ajax&func=saveData&data='+type+'&DMid='+id+'&content='+content, function(result){$('icon_tab_'+type+'_'+id).setAttribute('src', '../assets/modules/devmanager/images/stat.png');});
 	$('data_tab_'+type+'_'+id).innerHTML = myCodeMirror.doc.getValue();
 }
-function viewAllCategories(){
+function displayAllCategories(display){
 	var arr = $byClass('spoilCategory');
 	for (var i = 0, length = arr.length; i < length; i++)
 		if (i in arr)
-			arr[i].style.display = '';
+			arr[i].style.display = display;
 	arr = $byClass('categories_data');
 	for (var i = 0, length = arr.length; i < length; i++)
 		if (i in arr)
-			arr[i].style.display = '';
-	
-}
-function spoilAllCategories(){
-	var arr = $byClass('spoilCategory');
-	for (var i = 0, length = arr.length; i < length; i++)
-		if (i in arr)
-			arr[i].style.display = 'none';
-	arr = $byClass('categories_data');
-	for (var i = 0, length = arr.length; i < length; i++)
-		if (i in arr)
-			arr[i].style.display = 'none';
+			arr[i].style.display = display;
 }
 function sort(elem){
-	if(sorted == 'id'){
-		sorted = 'name'; 
-		this.title = 'Сортировать по ID';
-	}else{
-		sorted = 'id'; 
-		this.title = 'Сортировать по имени';
-	}
+	if(sorted == 'id'){sorted = 'name';this.title = 'Сортировать по ID';}
+		else{sorted = 'id';this.title = 'Сортировать по имени';}
 	loadLeftBlock();
 }
 function createDoc(type){
 	var ajax = new ajaxClass('from=ajax&func=create&data='+type, function(result){loadLeftBlock();});
 }
 function viewCategory(elem){
-	if(cat == '1'){
-		cat = '0';
-		elem.title = 'Показать категории';
-	}else{
-		cat = '1';
-		elem.title = 'Скрыть категории';
-	}
+	if(cat == '1'){cat = '0';elem.title = 'Показать категории';}
+		else{cat = '1';elem.title = 'Скрыть категории';}
 	loadLeftBlock();
 }
-function clearCache(){var ajax = new ajaxClass('from=ajax&func=clearCache', function(result){loadLeftBlock();});}
-var searchClass = function(){	
+function clearCache(){
+	var ajax = new ajaxClass('from=ajax&func=clearCache', function(result){loadLeftBlock();});
+}
+var search = (function(){
 	var queryDialog = '<img src="../assets/modules/devmanager/images/search.png" style="display:block;margin-top:5px;float:left;margin-right:5px;">Поиск: <input type="text" style="width: 10em"/><span style="color: #888"></span>';
 	var replaceQueryDialog = '<img src="../assets/modules/devmanager/images/search.png" style="display:block;margin-top:5px;float:left;margin-right:5px;"> Заменить: <input type="text" style="width: 10em"/>';
 	var replacementQueryDialog = '<img src="../assets/modules/devmanager/images/replase.png" style="display:block;margin-top:5px;float:left;margin-right:5px;widht:16px;"> На: <input type="text" style="width: 10em"/>';
@@ -381,9 +356,8 @@ var searchClass = function(){
 		  });
 		});
 	}
-}
-var search = new searchClass();
-var menuClass = function(){
+})();
+var menu = (function(){
 	function defPosition(event){
 		var x = y = 0;
 		if (document.attachEvent != null){
@@ -466,9 +440,8 @@ var menuClass = function(){
 		return false;
 	}
 	addHandler(document, "click", function(){$("contextMenu").style.display = "none";});
-}
-var menu = new menuClass();
-var boxClass = function(){
+})();
+var box = (function(){
 	this.close = close = function(){$('box').style.display = 'none';}
 	this.view = view = function(){$('box').style.display = '';}
 	this.saveConfig = saveConfig = function(type, id){
@@ -485,5 +458,4 @@ var boxClass = function(){
 		var ajax = new ajaxClass('from=ajax&func=printConfig&data='+type+'&DMid='+id, function(result){$('data_menu').innerHTML = result;});
 		$('saveConfig').onclick = function(){saveConfig(type, id);}
 	}
-}
-var box = new boxClass();
+})();
