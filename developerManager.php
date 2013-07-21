@@ -63,7 +63,6 @@ class DeveloperManager extends dataDeveloperManager{
 	<link rel="stylesheet" type="text/css" href="../assets/modules/devmanager/style.css" />
 	<script src="../assets/modules/devmanager/data.js" type="text/javascript"></script>
 	<link rel="stylesheet" href="../assets/modules/devmanager/cm/lib/codemirror.css">
-	<link rel="stylesheet" href="../assets/modules/devmanager/cm/theme/default.css">
 	<script src="../assets/modules/devmanager/cm/lib/codemirror-compressed.js"></script>
 	<script src="../assets/modules/devmanager/cm/addon-compressed.js"></script>
 	<script src="../assets/modules/devmanager/cm/mode/htmlmixed-compressed.js"></script>
@@ -91,33 +90,26 @@ class DeveloperManager extends dataDeveloperManager{
 		</div>
 		<div class="cat">
 			<div onclick ="spoil('docBlock');" oncontextmenu="return menu.view(1, event, this, 'doc');" class="category">Документы:</div>
-			<div id="docBlock" class="spoilCategory" style="display:none;">
-			</div>
+			<div id="docBlock" class="spoilCategory" style="display:none;"></div>
 			<div onclick = "spoil('chunkBlock');" oncontextmenu="return menu.view(1, event, this, 'chunk');" class="category">Чанки:</div>
-			<div id="chunkBlock" class="spoilCategory" style="display:none;">
-			</div>
+			<div id="chunkBlock" class="spoilCategory" style="display:none;"></div>
 			<div onclick = "spoil('tvBlock');" oncontextmenu="return menu.view(1, event, this, 'tv');" class="category">TV параметры:</div>
-			<div id="tvBlock" class="spoilCategory" style="display:none;">
-			</div>
+			<div id="tvBlock" class="spoilCategory" style="display:none;"></div>
 			<div onclick = "spoil('snippetBlock');" oncontextmenu="return menu.view(1, event, this, 'snippet');" class="category">Сниппеты:</div>
-			<div id="snippetBlock" class="spoilCategory" style="display:none;">
-			</div>
+			<div id="snippetBlock" class="spoilCategory" style="display:none;"></div>
 			<div onclick = "spoil('pluginBlock');" oncontextmenu="return menu.view(1, event, this, 'plugin');" class="category">Плагины:</div>
-			<div id="pluginBlock" class="spoilCategory" style="display:none;">
-			</div>
+			<div id="pluginBlock" class="spoilCategory" style="display:none;"></div>
 			<div onclick = "spoil('templateBlock');" oncontextmenu="return menu.view(1, event, this, 'template');" class="category">Шаблоны:</div>
 			<div id="templateBlock" class="spoilCategory" style="display:none;"></div>
 		</div>
 	</div>
 	<div id="right">
-		<div id="tabs">
-		</div>
+		<div id="tabs"></div>
 		<div id="buttons"></div>
-		<div id="data_tabs">
-		</div>
+		<div id="data_tabs"></div>
 	</div>
 	<div id="contextMenu" style="top:0; left:0;display:none;"></div>
-	<div id="box"  style="display:none;">
+	<div id="box" style="display:none;">
 		<div class="bg"></div>
 		<div class="menu">
 			<div class="content">
@@ -230,6 +222,16 @@ HEREDOC;
 						$template.= '<option value="'.$value['id'].'">'.$value['templatename'].'</option>';
 				}
 				$template .= '</select>';
+				$types = array('application/rss+xml','application/pdf','application/vnd.ms-word','application/vnd.ms-excel','text/html','text/css','text/xml','text/javascript','text/plain','application/json');
+				$type ='<select name="contentType" class="inputBox" style="width:300px">';
+				foreach($types as $value){
+					if($arr['contentType'] == $value)
+						$type.= '<option value="'.$value.'" selected=selected>'.$value.'</option>';
+					else
+						$type.= '<option value="'.$value.'">'.$value.'</option>';
+				}
+				$type .= '</select>';
+				$published = ($arr['published']=='0')?'':'checked';
 				$result ='
 				<form><table><tr>
 					<td>Заголовок:</td>
@@ -249,11 +251,19 @@ HEREDOC;
 				</tr>
 				<tr>
 					<td>Аннотация:</td>
-					<td><textarea name="introtext" class="inputBox" rows="3"></textarea>'.$arr['introtext'].'</td>
+					<td><textarea name="introtext" class="inputBox" rows="3">'.$arr['introtext'].'</textarea></td>
 				</tr>
 				<tr>
 					<td>Шаблон:</td>
 					<td>'.$template.'</td>
+				</tr>
+				<tr>
+					<td>Тип содержимого:</td>
+					<td>'.$type.'</td>
+				</tr>
+				<tr>
+					<td>Публиковать:</td>
+					<td><input type="checkbox" id="published" name="published" class="inputBox" '.$published.'></td>
 				</tr>
 				</table></form>
 				';	
@@ -268,6 +278,16 @@ HEREDOC;
 						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
 				}
 				$cat .= '</select>';
+				$cat .= '</select>';
+				$types = array('text','textarea','textareamini','richtext','dropdown','listbox','listbox-multiple','option','checkbox','image','file','url','email','number','date','custom_tv');
+				$type ='<select name="type" class="inputBox" style="width:300px">';
+				foreach($types as $value){
+					if($arr['type'] == $value)
+						$type.= '<option value="'.$value.'" selected=selected>'.$value.'</option>';
+					else
+						$type.= '<option value="'.$value.'">'.$value.'</option>';
+				}
+				$type .= '</select>';
 				$result ='
 				<form><table><tr>
 					<td>Название:</td>
@@ -283,7 +303,7 @@ HEREDOC;
 				</tr>
 				<tr>
 					<td>Тип ввода:</td>
-					<td><input name="type" type="text" maxlength="50" value="'.$arr['type'].'" class="inputBox" style="width:150px;"></td>
+					<td>'.$type.'</td>
 				</tr>
 				<tr>
 					<td>Возможные значения:</td>
@@ -339,6 +359,7 @@ HEREDOC;
 						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
 				}
 				$cat .= '</select>';
+				$published = ($arr['disabled']=='0')?'':'checked';
 				$result ='
 				<form><table><tr>
 					<td>Название:</td>
@@ -355,7 +376,12 @@ HEREDOC;
 				<tr>
 					<td>Конфигурация:</td>
 					<td><textarea name="properties" class="inputBox">'.$arr['properties'].'</textarea></td>
-				</tr></table></form>
+				</tr>
+				<tr>
+					<td>Плагин отключен:</td>
+					<td><input type="checkbox" id="disabled" name="disabled" class="inputBox" '.$published.'></td>
+				</tr>
+				</table></form>
 				';
 				break;
 			case 'template':
@@ -393,6 +419,8 @@ HEREDOC;
 					if(isset($this->parameters['alias']))$fields['alias'] = addslashes($this->parameters['alias']);
 					if(isset($this->parameters['introtext']))$fields['introtext'] = addslashes($this->parameters['introtext']);
 					if(isset($this->parameters['template']))$fields['template'] = addslashes($this->parameters['template']);
+					if(isset($this->parameters['contentType']))$fields['contentType'] = addslashes($this->parameters['contentType']);
+					if(isset($this->parameters['published']))$fields['published'] = ($this->parameters['published'] == 'true')?'1':'0';
 				break;
 			case 'tv':
 					if(isset($this->parameters['name']))$fields['name'] = addslashes($this->parameters['name']);
@@ -414,6 +442,7 @@ HEREDOC;
 					if(isset($this->parameters['description']))$fields['description'] = addslashes($this->parameters['description']);
 					if(isset($this->parameters['category']))$fields['category'] = addslashes($this->parameters['category']);
 					if(isset($this->parameters['properties']))$fields['properties'] = addslashes($this->parameters['properties']);
+					if(isset($this->parameters['disabled']))$fields['disabled'] = ($this->parameters['disabled'] == 'true')?'1':'0';
 				break;
 			case 'template':
 					if(isset($this->parameters['templatename']))$fields['templatename'] = addslashes($this->parameters['templatename']);

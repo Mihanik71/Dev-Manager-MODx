@@ -235,9 +235,6 @@ function sort(elem){
 		else{sorted = 'id';this.title = 'Сортировать по имени';}
 	loadLeftBlock();
 }
-function createDoc(type){
-	var ajax = new ajaxClass('from=ajax&func=create&data='+type, function(result){loadLeftBlock();});
-}
 function viewCategory(elem){
 	if(cat == '1'){cat = '0';elem.title = 'Показать категории';}
 		else{cat = '1';elem.title = 'Скрыть категории';}
@@ -246,7 +243,7 @@ function viewCategory(elem){
 function clearCache(){
 	var ajax = new ajaxClass('from=ajax&func=clearCache', function(result){loadLeftBlock();});
 }
-var search = (function(){
+var searchClass = function(){
 	var queryDialog = '<img src="../assets/modules/devmanager/images/search.png" style="display:block;margin-top:5px;float:left;margin-right:5px;">Поиск: <input type="text" style="width: 10em"/><span style="color: #888"></span>';
 	var replaceQueryDialog = '<img src="../assets/modules/devmanager/images/search.png" style="display:block;margin-top:5px;float:left;margin-right:5px;"> Заменить: <input type="text" style="width: 10em"/>';
 	var replacementQueryDialog = '<img src="../assets/modules/devmanager/images/replase.png" style="display:block;margin-top:5px;float:left;margin-right:5px;widht:16px;"> На: <input type="text" style="width: 10em"/>';
@@ -356,8 +353,9 @@ var search = (function(){
 		  });
 		});
 	}
-})();
-var menu = (function(){
+};
+var search = new searchClass();
+var menuClass = function(){
 	function defPosition(event){
 		var x = y = 0;
 		if (document.attachEvent != null){
@@ -440,8 +438,9 @@ var menu = (function(){
 		return false;
 	}
 	addHandler(document, "click", function(){$("contextMenu").style.display = "none";});
-})();
-var box = (function(){
+};
+var menu = new menuClass();
+var boxClass = function(){
 	this.close = close = function(){$('box').style.display = 'none';}
 	this.view = view = function(){$('box').style.display = '';}
 	this.saveConfig = saveConfig = function(type, id){
@@ -450,6 +449,8 @@ var box = (function(){
 		for (var i = 0, length = arr.length; i < length; i++)
 			if (i in arr)
 				str += '&'+arr[i].name+'='+encodeURIComponent(arr[i].value||arr[i].innerHTML);
+		if(type=='doc') str+='&published='+$('published').checked;
+		if(type=='plugin') str+='&disabled='+$('disabled').checked;
 		var ajax = new ajaxClass(str, function(result){loadLeftBlock();});
 		close();
 	}
@@ -458,4 +459,8 @@ var box = (function(){
 		var ajax = new ajaxClass('from=ajax&func=printConfig&data='+type+'&DMid='+id, function(result){$('data_menu').innerHTML = result;});
 		$('saveConfig').onclick = function(){saveConfig(type, id);}
 	}
-})();
+};
+var box = new boxClass();
+function createDoc(type){
+	var ajax = new ajaxClass('from=ajax&func=create&data='+type, function(result){loadLeftBlock();box.getConfig(type,result);});
+}

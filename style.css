@@ -1,3 +1,4 @@
+body,html{height:100%;width:100%;}
 .category{
 	background: -moz-linear-gradient(#f5f5f5, #DDDDDD);
 	background: -webkit-gradient(linear, 0 0, 0 100%, from(#f5f5f5), to(#DDDDDD));
@@ -61,6 +62,7 @@ a.menuLink{
 	width:175px;
 	float:left;
 	height:100%;
+	position: fixed;
 }
 .left a{
 	font-size:90%;
@@ -91,7 +93,6 @@ a.disabled{
 .tab{
 	float:left;
 	padding:0 10px;
-	
 	zoom: 1;
 	-moz-box-shadow: 0px 1px 0px #fff inset;
 	-webkit-box-shadow: 0px 1px 0px #fff inset;
@@ -220,7 +221,7 @@ a.disabled{
 }
 .category_panel{
 	height: 20px;
-	width: 100%;
+	width: 175px;
 	position:fixed;
 }
 .category_panel img{
@@ -231,7 +232,7 @@ a.disabled{
 }
 .cat{
 	position: fixed;
-	overflow: auto;
+	overflow-y: auto;
 	height: calc(100% - 20px);
 	width: 175px;
 	top:20px;
