@@ -11,7 +11,6 @@ class DeveloperManager extends dataDeveloperManager{
 		$this->parameters = $parameters;
 	}
 	public function __destruct(){
-		parent::__destruct();
 		unset($this->parameters);
 	}
 	public function init(){
