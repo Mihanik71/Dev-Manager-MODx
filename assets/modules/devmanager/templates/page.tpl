@@ -18,7 +18,9 @@
 		var cat = '0';
 		var myCodeMirror, req;
 		loadLeftBlock();
+		top.mainMenu.hideTreeFrame();
 	</script>
+
 </head>
 <body>
 	<div class="left">
