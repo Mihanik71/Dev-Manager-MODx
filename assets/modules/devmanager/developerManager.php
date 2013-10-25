@@ -1,4 +1,6 @@
 <?php
+if(IN_MANAGER_MODE!='true' && !$modx->hasPermission('exec_module')) die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.');
+
 include('dataDeveloperManager.php');
 class DeveloperManager extends dataDeveloperManager{
 	private $parameters = array();
@@ -11,18 +13,32 @@ class DeveloperManager extends dataDeveloperManager{
 		$this->parameters = $parameters;
 	}
 	public function __destruct(){
+		parent::__destruct();
 		unset($this->parameters);
 	}
-	public function init(){
-		if($this->parameters['from'] != 'ajax')
-			$this->printPage();
-		else
-			$this->answer();
-	}
+    private function processTemplate($tpl,$params){
+        $tpl = file_get_contents($this->config['modulePath'].'templates/'.$tpl);
+        foreach($params as $key=>$value){
+            $tpl = str_replace('[+'.$key.'+]', $value, $tpl);
+        }
+        return $tpl;
+    }
+    private function printPage(){
+        echo $this->processTemplate('page.tpl',array('theme'=>$this->config['theme']));
+    }
+    public function init(){
+        if(isset($this->parameters['from']))
+            if($this->parameters['from'] != 'ajax')
+                $this->printPage();
+            else
+                $this->answer();
+        else
+            $this->printPage();
+    }
 	private function answer(){
 		switch($this->parameters['func']){
 			case 'printAll':
-					echo (($this->parameters['cat'] == '1')&&($this->parameters['data'] != 'doc')) ? $this->printAllCategory($this->parameters['data'], $this->parameters['sort']) : $this->printAll($this->parameters['data'], $this->parameters['sort']);
+				echo (($this->parameters['cat'] == '1')&&($this->parameters['data'] != 'doc')) ? $this->printAllCategory($this->parameters['data'], $this->parameters['sort']) : $this->printAll($this->parameters['data'], $this->parameters['sort']);
 				break;
 			case 'createCopy':
 				echo $this->createCopy($this->parameters['data'],$this->parameters['DMid']);
@@ -53,78 +69,6 @@ class DeveloperManager extends dataDeveloperManager{
 				break;
 		}
 	}
-	private function printPage(){
-		echo <<< HEREDOC
-<!doctype html>
-<html>
-<head>
-	<link rel="stylesheet" type="text/css" href="media/style/{$this->config['theme']}/style.css" />
-	<link rel="stylesheet" type="text/css" href="../assets/modules/devmanager/style.css" />
-	<script src="../assets/modules/devmanager/data.js" type="text/javascript"></script>
-	<link rel="stylesheet" href="../assets/modules/devmanager/cm/lib/codemirror.css">
-	<script src="../assets/modules/devmanager/cm/lib/codemirror-compressed.js"></script>
-	<script src="../assets/modules/devmanager/cm/addon-compressed.js"></script>
-	<script src="../assets/modules/devmanager/cm/mode/htmlmixed-compressed.js"></script>
-	<script src="../assets/modules/devmanager/cm/mode/php-compressed.js"></script>
-	<script src="../assets/modules/devmanager/cm/emmet-compressed.js"></script>
-	<script src="../assets/modules/devmanager/cm/searchcursor.js"></script>
-	<script src="../assets/modules/devmanager/cm/dialog.js"></script>
-	<script>
-		var theme = '{$this->config['theme']}';
-		var sorted = 'id';
-		var cat = '0';
-		var myCodeMirror, req;
-		loadLeftBlock();
-	</script>
-</head>
-<body>
-	<div class="left">
-		<div class="category_panel">
-			<img src="media/style/{$this->config['theme']}/images/tree/sitemap.png" onclick="viewCategory(this);" title="Показать категории"/>
-			<img src="media/style/{$this->config['theme']}/images/icons/sort.png" onclick="sort(this);" title="Сортировать по имени"/>
-			<img src="media/style/{$this->config['theme']}/images/icons/arrow_down.png" onclick="displayAllCategories('');" title="Развернуть всё"/>	
-			<img src="media/style/{$this->config['theme']}/images/icons/arrow_up.png" onclick="displayAllCategories('none');" title="Свернуть всё"/>
-			<img src="media/style/{$this->config['theme']}/images/icons/refresh.png" onclick="loadLeftBlock();" title="Обновить"/>
-			<img src="media/style/{$this->config['theme']}/images/icons/trash.png" onclick="clearCache();" title="Очистить кэш"/>
-		</div>
-		<div class="cat">
-			<div onclick ="spoil('docBlock');" oncontextmenu="return menu.view(1, event, this, 'doc');" class="category">Документы:</div>
-			<div id="docBlock" class="spoilCategory" style="display:none;"></div>
-			<div onclick = "spoil('chunkBlock');" oncontextmenu="return menu.view(1, event, this, 'chunk');" class="category">Чанки:</div>
-			<div id="chunkBlock" class="spoilCategory" style="display:none;"></div>
-			<div onclick = "spoil('tvBlock');" oncontextmenu="return menu.view(1, event, this, 'tv');" class="category">TV параметры:</div>
-			<div id="tvBlock" class="spoilCategory" style="display:none;"></div>
-			<div onclick = "spoil('snippetBlock');" oncontextmenu="return menu.view(1, event, this, 'snippet');" class="category">Сниппеты:</div>
-			<div id="snippetBlock" class="spoilCategory" style="display:none;"></div>
-			<div onclick = "spoil('pluginBlock');" oncontextmenu="return menu.view(1, event, this, 'plugin');" class="category">Плагины:</div>
-			<div id="pluginBlock" class="spoilCategory" style="display:none;"></div>
-			<div onclick = "spoil('templateBlock');" oncontextmenu="return menu.view(1, event, this, 'template');" class="category">Шаблоны:</div>
-			<div id="templateBlock" class="spoilCategory" style="display:none;"></div>
-		</div>
-	</div>
-	<div id="right">
-		<div id="tabs"></div>
-		<div id="buttons"></div>
-		<div id="data_tabs"></div>
-	</div>
-	<div id="contextMenu" style="top:0; left:0;display:none;"></div>
-	<div id="box" style="display:none;">
-		<div class="bg"></div>
-		<div class="menu">
-			<div class="content">
-				<div class="data" id="data_menu"></div>
-				<div class="actionButtons">
-					<a src="#" id="saveConfig">Сохранить</a>
-					<a src="#" onclick="box.close();">Отмена</a>
-				</div>
-			</div>
-			<div class="close"><img src="../assets/modules/devmanager/images/close_2.png" onclick="box.close();" style="width: 100%;" title="Закрыть"/></div>
-		</div>
-	</div>
-</body>
-</html>
-HEREDOC;
-	}
 	private function printAll($type, $par = 'id'){
 		$result = '';
 		if($par=='name'){
@@ -135,7 +79,8 @@ HEREDOC;
 		switch($type){
 			case 'doc': 
 				foreach ($arr as $i){
-					if($i['contentType']=='text/html')$i['contentType'] = 'htmlmixed';
+					if($i['contentType']=='text/html')
+						$i['contentType'] = 'htmlmixed';
 					$menu = 'oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\',\''.$i['contentType'].'\');"';
 					switch($i['contentType']){
 						case 'text/css':
@@ -231,41 +176,17 @@ HEREDOC;
 				}
 				$type .= '</select>';
 				$published = ($arr['published']=='0')?'':'checked';
-				$result ='
-				<form><table><tr>
-					<td>Заголовок:</td>
-					<td><input name="pagetitle" type="text" maxlength="100" value="'.$arr['pagetitle'].'" class="inputBox" style="width:300px;"></td>
-				</tr>
-				<tr>
-					<td>Расширенный заголовок:</td>
-					<td><input name="longtitle" type="text" maxlength="100" value="'.$arr['longtitle'].'" class="inputBox" style="width:300px;"></td>
-				</tr>
-				<tr>
-					<td>Описание:</td>
-					<td><input name="description" type="text" maxlength="100" value="'.$arr['description'].'" class="inputBox" style="width:300px;"></td>
-				</tr>
-				<tr>
-					<td>Псевдоним:</td>
-					<td><input name="alias" type="text" maxlength="100" value="'.$arr['alias'].'" class="inputBox" style="width:300px;"></td>
-				</tr>
-				<tr>
-					<td>Аннотация:</td>
-					<td><textarea name="introtext" class="inputBox" rows="3">'.$arr['introtext'].'</textarea></td>
-				</tr>
-				<tr>
-					<td>Шаблон:</td>
-					<td>'.$template.'</td>
-				</tr>
-				<tr>
-					<td>Тип содержимого:</td>
-					<td>'.$type.'</td>
-				</tr>
-				<tr>
-					<td>Публиковать:</td>
-					<td><input type="checkbox" id="published" name="published" class="inputBox" '.$published.'></td>
-				</tr>
-				</table></form>
-				';	
+				$params = array(
+					'pagetitle'=>$arr['pagetitle'],
+					'longtitle'=>$arr['longtitle'],
+					'description'=>$arr['description'],
+					'introtext'=>$arr['introtext'],
+					'alias'=>$arr['alias'],
+					'template'=>$template,
+					'type'=>$type,
+					'published'=>$published
+				);
+				echo $this->processTemplate('config/doc.tpl',$params);
 				break;
 			case 'tv':
 				$cat_arr = $this->selectCategories();
@@ -287,40 +208,17 @@ HEREDOC;
 						$type.= '<option value="'.$value.'">'.$value.'</option>';
 				}
 				$type .= '</select>';
-				$result ='
-				<form><table><tr>
-					<td>Название:</td>
-					<td><input name="name" type="text" maxlength="100" value="'.$arr['name'].'" class="inputBox" style="width:140px;"></td>
-				</tr>
-				<tr>
-					<td>Заголовок:</td>
-					<td><input name="caption" type="text" maxlength="255" value="'.$arr['caption'].'" class="inputBox" style="width:300px;"></td>
-				</tr>
-				<tr>
-					<td>Описание:</td>
-					<td><input name="description" type="text" maxlength="255" value="'.$arr['description'].'" class="inputBox" style="width:300px;"></td>
-				</tr>
-				<tr>
-					<td>Тип ввода:</td>
-					<td>'.$type.'</td>
-				</tr>
-				<tr>
-					<td>Возможные значения:</td>
-					<td><textarea name="elements" maxlength="65535" class="inputBox">'.$arr['elements'].'</textarea></td>
-				</tr>
-				<tr>
-					<td>По умолчанию:</td>
-					<td><textarea name="default_text" maxlength="65535" class="inputBox">'.$arr['default_text'].'</textarea></td>
-				</tr>
-				<tr>
-					<td>Отображение:</td>
-					<td><input name="display" type="text" maxlength="50" value="'.$arr['display'].'" class="inputBox" style="width:150px;"></td>
-				</tr>
-				<tr>
-					<td>Категория:</td>
-					<td>'.$cat.'</td>
-				</tr></table></form>
-				';
+				$params = array(
+					'name'=>$arr['name'],
+					'caption'=>$arr['caption'],
+					'description'=>$arr['description'],
+					'type'=>$type,
+					'elements'=>$arr['elements'],
+					'default_text'=>$arr['default_text'],
+					'display'=>$arr['display'],
+					'cat'=>$cat
+				);
+				echo $this->processTemplate('config/tv.tpl',$params);
 				break;
 			case 'chunk':
 			case 'snippet':
@@ -333,20 +231,12 @@ HEREDOC;
 						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
 				}
 				$cat .= '</select>';
-				$result ='
-				<form><table><tr>
-					<td>Название:</td>
-					<td><input name="name" type="text" maxlength="100" value="'.$arr['name'].'" class="inputBox" style="width:140px;"></td>
-				</tr>
-				<tr>
-					<td>Описание:</td>
-					<td><input name="description" type="text" maxlength="255" value="'.$arr['description'].'" class="inputBox" style="width:300px;"></td>
-				</tr>
-				<tr>
-					<td>Категория:</td>
-					<td>'.$cat.'</td>
-				</tr></table></form>
-				';
+				$params = array(
+					'name'=>$arr['name'],
+					'description'=>$arr['description'],
+					'cat'=>$cat
+				);
+				echo $this->processTemplate('config/snippet.tpl',$params);
 				break;
 			case 'plugin':
 				$cat_arr = $this->selectCategories();
@@ -359,29 +249,15 @@ HEREDOC;
 				}
 				$cat .= '</select>';
 				$published = ($arr['disabled']=='0')?'':'checked';
-				$result ='
-				<form><table><tr>
-					<td>Название:</td>
-					<td><input name="name" type="text" maxlength="100" value="'.$arr['name'].'" class="inputBox" style="width:140px;"></td>
-				</tr>
-				<tr>
-					<td>Описание:</td>
-					<td><input name="description" type="text" maxlength="255" value="'.$arr['description'].'" class="inputBox" style="width:300px;"></td>
-				</tr>
-				<tr>
-					<td>Категория:</td>
-					<td>'.$cat.'</td>
-				</tr>
-				<tr>
-					<td>Конфигурация:</td>
-					<td><textarea name="properties" class="inputBox">'.$arr['properties'].'</textarea></td>
-				</tr>
-				<tr>
-					<td>Плагин отключен:</td>
-					<td><input type="checkbox" id="disabled" name="disabled" class="inputBox" '.$published.'></td>
-				</tr>
-				</table></form>
-				';
+				$params = array(
+					'name'=>$arr['name'],
+					'description'=>$arr['description'],
+					'type'=>$type,
+					'cat'=>$cat,
+					'properties'=>$arr['properties'],
+					'published'=>$published
+				);
+				echo $this->processTemplate('config/plugin.tpl',$params);
 				break;
 			case 'template':
 				$cat_arr = $this->selectCategories();
@@ -393,26 +269,27 @@ HEREDOC;
 						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
 				}
 				$cat .= '</select>';
-				$result ='<form><table><tr>
-					<td>Название:</td>
-					<td><input name="templatename" type="text" maxlength="100" value="'.$arr['templatename'].'" class="inputBox" style="width:140px;"></td>
-				</tr>
-				<tr>
-					<td>Описание:</td>
-					<td><input name="description" type="text" maxlength="255" value="'.$arr['description'].'" class="inputBox" style="width:300px;"></td>
-				</tr>
-				<tr>
-					<td>Категория:</td>
-					<td>'.$cat.'</td>
-				</tr></table></form>
-				';
+				$params = array(
+					'templatename'=>$arr['templatename'],
+					'description'=>$arr['description'],
+					'cat'=>$cat
+				);
+				echo $this->processTemplate('config/template.tpl',$params);
 				break;
 		}
 		return $result;
 	}
+	private function slashesArr($arr,$parameters){
+		$fields = array();
+		foreach($arr as $value){
+			if(isset($this->parameters[$value]))
+				$fields[$value] = addslashes($this->parameters[$value]);
+		}
+		return $fields;
+	}
 	private function saveConfig($type, $id){
 		switch($type){
-			case 'doc': 
+			case 'doc':
 					if(isset($this->parameters['pagetitle']))$fields['pagetitle'] = addslashes($this->parameters['pagetitle']);
 					if(isset($this->parameters['description']))$fields['description'] = addslashes($this->parameters['description']);
 					if(isset($this->parameters['alias']))$fields['alias'] = addslashes($this->parameters['alias']);
