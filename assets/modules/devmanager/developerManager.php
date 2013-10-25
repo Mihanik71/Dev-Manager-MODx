@@ -13,7 +13,6 @@ class DeveloperManager extends dataDeveloperManager{
 		$this->parameters = $parameters;
 	}
 	public function __destruct(){
-		parent::__destruct();
 		unset($this->parameters);
 	}
     private function processTemplate($tpl,$params){
