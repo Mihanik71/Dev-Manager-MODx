@@ -59,7 +59,7 @@ class dataDeveloperManager{
 				$result = $this->modx->db->insert($fields, $this->dbTable['template']); 
 				break;
 		}
-		$this->modx->clearCache();
+		$this->clearCache();
 		return ($format == 'json')?json_encode($result):$result;
 	}
 	public function createCopy($type, $id, $format = 'html'){
@@ -81,7 +81,7 @@ class dataDeveloperManager{
 				break;
 		}
 		$result = $this->create($type, $arr);
-		$this->modx->clearCache();
+		$this->clearCache();
 		return ($format == 'json')?json_encode($result):$result;
 	}
 	public function delete($type, $id, $format = 'html'){
@@ -93,7 +93,7 @@ class dataDeveloperManager{
 			case 'plugin'	: $result = $this->modx->db->delete($this->dbTable['plugin'], 'id = '.$id); break;
 			case 'template'	: $result = $this->modx->db->delete($this->dbTable['template'], 'id = '.$id); break;
 		}
-		$this->modx->clearCache();
+		$this->clearCache();
 		return ($format == 'json')?json_encode($result):$result;
 	}
 	public function update($type, $fields, $id, $format = 'html'){
@@ -105,7 +105,7 @@ class dataDeveloperManager{
 			case 'plugin'	: $result = $this->modx->db->update($fields, $this->dbTable['plugin'], 'id = "'.$id .'"'); break;
 			case 'template'	: $result = $this->modx->db->update($fields, $this->dbTable['template'], 'id = "'.$id .'"'); break;
 		}
-		$this->modx->clearCache();
+		$this->clearCache();
 		return ($format == 'json')?json_encode($result):$result;
 	}
 	public function getData($type, $id, $format = 'html'){
@@ -160,6 +160,11 @@ class dataDeveloperManager{
 	}
 	public function clearCache(){
 		$this->modx->clearCache();
+		include_once (MODX_BASE_PATH.'manager/processors/cache_sync.class.processor.php');
+		$sync = new synccache();
+		$sync->setCachepath(MODX_BASE_PATH . "assets/cache/");
+		$sync->setReport(false);
+		$sync->emptyCache();
 	}
 }
 ?>
