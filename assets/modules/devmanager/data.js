@@ -151,7 +151,7 @@ function viewCM(id, type, lang){
 	}
 	myCodeMirror.on("change", function(cm, n) {
 		$('icon_tab_'+type+'_'+id).setAttribute('src', '../assets/modules/devmanager/images/stat2.png');
-		myCodeMirror.off("change");
+		$('data_tab_'+type+'_'+id).innerHTML = myCodeMirror.doc.getValue();
 	});
 }
 function createCopy(str, id, name){
