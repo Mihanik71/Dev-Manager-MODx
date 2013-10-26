@@ -199,9 +199,9 @@ function viewCode(type, id, name, lang){
 	var data_active = $byClass('CodeMirror cm-s-default CodeMirror-wrap');
 	if (data_active[0] != undefined)
 		remove(data_active[0]);
-	$('buttons').innerHTML = '<img src="media/style/'+theme+'/images/icons/save.png" onclick="saveData(\''+type+'\','+id+');" title="Сохранить"/>'+
-		'<img src="../assets/modules/devmanager/images/undo.png" onclick="myCodeMirror.undo();" title="Отменить"/>'+
-		'<img src="../assets/modules/devmanager/images/redo.png" onclick="myCodeMirror.redo();" title="Повторить"/>'+
+	$('buttons').innerHTML = '<img src="media/style/'+theme+'/images/icons/save.png" onclick="saveData(\''+type+'\','+id+');" title="Сохранить (Ctrl + S)"/>'+
+		'<img src="../assets/modules/devmanager/images/undo.png" onclick="myCodeMirror.undo();" title="Отменить (Ctrl + Z)"/>'+
+		'<img src="../assets/modules/devmanager/images/redo.png" onclick="myCodeMirror.redo();" title="Повторить  (Ctrl + Y)"/>'+
 		'<img src="../assets/modules/devmanager/images/search.png" onclick="search.doSearch(myCodeMirror);" title="Найти"/>'+
 		'<img src="../assets/modules/devmanager/images/replase.png" onclick="search.replase(myCodeMirror);" title="Заменить"/>';
 	if (tab != undefined){
@@ -383,7 +383,7 @@ var menuClass = function(){
 			break;
 			case (2) :
 				if (type != 'tv')
-					html += "<div class='menuLink' onclick='viewCode(\""+type+"\","+id+",\""+name+"\",\""+lang+"\");'><img src='media/style/"+theme+"/images/icons/save.png'/>Радактировать</div>";
+					html += "<div class='menuLink' onclick='viewCode(\""+type+"\","+id+",\""+name+"\",\""+lang+"\");'><img src='media/style/"+theme+"/images/icons/save.png'/>Редактировать</div>";
 				html += "<div class='menuLink' onclick='box.getConfig(\""+type+"\", \""+id+"\");'><img src='media/style/"+theme+"/images/icons/information.png'/>Настройки</div>";
 				switch (type){
 					case ('template') :
