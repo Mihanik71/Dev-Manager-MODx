@@ -19,6 +19,7 @@
 		var myCodeMirror, req;
 		loadLeftBlock();
 		top.mainMenu.hideTreeFrame();
+		var arrSpoil = new Object();
 	</script>
 
 </head>

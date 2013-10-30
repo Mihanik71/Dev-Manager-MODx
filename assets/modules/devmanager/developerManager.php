@@ -147,7 +147,7 @@ class DeveloperManager extends dataDeveloperManager{
 			break;
 		}
 		foreach ($arr_str as $key => $value){
-			$result .= '<div onclick="spoil(\''.$type.'_category_'.$key.'\');" class="categories">'.$category[$key]['category'].'</div><div id="'.$type.'_category_'.$key.'" style="display:none;" class="categories_data">'.$value.'</div>';
+			$result .= '<div onclick="spoil(\''.$type.'_category_'.$key.'\');saveSpoil(\''.$type.'_category_'.$key.'\');" class="categories">'.$category[$key]['category'].'</div><div id="'.$type.'_category_'.$key.'" style="display:none;" class="categories_data">'.$value.'</div>';
 		}
 		return $result;
 	}

@@ -11,6 +11,17 @@ function spoil(block_id){
 	var block = $(block_id);
 	block.style.display = ("none" == block.style.display)? "block" : "none";
 }
+function saveSpoil(name){
+	if(arrSpoil[name]) 
+		arrSpoil[name] = 0; 
+	else 
+		arrSpoil[name] = 1;
+}
+function reSpoil(){
+	for(var i in arrSpoil)
+		if(1===arrSpoil[i])
+			$(i).style.display = "block";
+}
 var ajaxClass = (function(){
 	function createRequest(){
 		if (window.XMLHttpRequest) req = new XMLHttpRequest();
@@ -162,13 +173,21 @@ function deleteDoc(str, id, name){
 	if(confirm("Bы уверены, что хотите удалить "+name+"?")) 
 		var ajax = new ajaxClass('from=ajax&func=delete&data='+str+'&DMid='+id, function(result){loadLeftBlock();});
 }
+var loadLeftBlockCounter = 0;
+function loadLeftBlockCounts(n){
+	loadLeftBlockCounter++;
+	if(n===loadLeftBlockCounter){
+		loadLeftBlockCounter = 0;
+		reSpoil();
+	}
+}
 function loadLeftBlock(){
-	var ajax = new ajaxClass('from=ajax&func=printAll&data=doc&cat='+cat+'&sort='+sorted, function(result){$('docBlock').innerHTML = result;});
-	var ajax = new ajaxClass('from=ajax&func=printAll&data=chunk&cat='+cat+'&sort='+sorted, function(result){$('chunkBlock').innerHTML = result;});
-	var ajax = new ajaxClass('from=ajax&func=printAll&data=tv&cat='+cat+'&sort='+sorted, function(result){$('tvBlock').innerHTML = result;});
-	var ajax = new ajaxClass('from=ajax&func=printAll&data=snippet&cat='+cat+'&sort='+sorted, function(result){$('snippetBlock').innerHTML = result;});
-	var ajax = new ajaxClass('from=ajax&func=printAll&data=plugin&cat='+cat+'&sort='+sorted, function(result){$('pluginBlock').innerHTML = result;});
-	var ajax = new ajaxClass('from=ajax&func=printAll&data=template&cat='+cat+'&sort='+sorted, function(result){$('templateBlock').innerHTML = result;});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=doc&cat='+cat+'&sort='+sorted, function(result){$('docBlock').innerHTML = result;loadLeftBlockCounts(6);});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=chunk&cat='+cat+'&sort='+sorted, function(result){$('chunkBlock').innerHTML = result;loadLeftBlockCounts(6);});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=tv&cat='+cat+'&sort='+sorted, function(result){$('tvBlock').innerHTML = result;loadLeftBlockCounts(6);});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=snippet&cat='+cat+'&sort='+sorted, function(result){$('snippetBlock').innerHTML = result;loadLeftBlockCounts(6);});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=plugin&cat='+cat+'&sort='+sorted, function(result){$('pluginBlock').innerHTML = result;loadLeftBlockCounts(6);});
+	var ajax = new ajaxClass('from=ajax&func=printAll&data=template&cat='+cat+'&sort='+sorted, function(result){$('templateBlock').innerHTML = result;reSpoil();loadLeftBlockCounts(6);});
 }
 function closeTab(elem, name){
 	var stat = elem.parentNode.getElementsByClassName('icon_tab')[0].getAttribute('src');
@@ -227,8 +246,11 @@ function displayAllCategories(display){
 			arr[i].style.display = display;
 	arr = $byClass('categories_data');
 	for (var i = 0, length = arr.length; i < length; i++)
-		if (i in arr)
+		if (i in arr){
 			arr[i].style.display = display;
+			arrSpoil[arr[i].id] = (('none' == display)?0:1);
+		}
+	reSpoil();
 }
 function sort(elem){
 	if(sorted == 'id'){sorted = 'name';this.title = 'Сортировать по ID';}
