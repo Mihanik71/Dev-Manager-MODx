@@ -9,7 +9,7 @@ class DeveloperManager extends dataDeveloperManager{
 		foreach ($arr as $key => $value){
 			if($value['parent']== $pid){
 				if($value['isfolder']){
-					$str .= '<img align="absmiddle" style="cursor: pointer;position:relative;margin-left:-5px;" src="media/style/'.$this->config['theme'].'/images/tree/plusnode.gif" onclick="spoil(\'content_tree_doc_block_'.$value['id'].'\');this.src =($(\'content_tree_doc_block_'.$value['id'].'\').style.display == \'none\')?\'media/style/'.$this->config['theme'].'/images/tree/plusnode.gif\':\'media/style/'.$this->config['theme'].'/images/tree/minusnode.gif\'">';
+					$str .= '<img align="absmiddle" style="cursor: pointer;position:relative;margin-left:-5px;" src="media/style/'.$this->config['theme'].'/images/tree/plusnode.gif" onclick="saveSpoil(\'content_tree_doc_block_'.$value['id'].'\');spoil(\'content_tree_doc_block_'.$value['id'].'\');this.src =($(\'content_tree_doc_block_'.$value['id'].'\').style.display == \'none\')?\'media/style/'.$this->config['theme'].'/images/tree/plusnode.gif\':\'media/style/'.$this->config['theme'].'/images/tree/minusnode.gif\'">';
 					$str .= $this->getDocBlock($value);
 					$str .= "<div id='content_tree_doc_block_".$value['id']."' style='display:none;margin-left:18px;'>";
 					$next_level = $this->view_tree($arr,$value['id']);
