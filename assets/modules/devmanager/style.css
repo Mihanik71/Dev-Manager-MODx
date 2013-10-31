@@ -71,6 +71,10 @@ a.menuLink{
 	padding-left: 12px;
 	margin:5px;
 }
+.left .empty{
+	color:#aaa;
+	font-size: 80%;
+}
 a.disabled{
 	color: #aaa;
 	text-decoration: line-through;

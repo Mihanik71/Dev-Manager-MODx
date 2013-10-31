@@ -4,7 +4,47 @@ if(IN_MANAGER_MODE!='true' && !$modx->hasPermission('exec_module')) die('<b>INCL
 include('dataDeveloperManager.php');
 class DeveloperManager extends dataDeveloperManager{
 	private $parameters = array();
-	
+	private function view_tree($arr, $pid){
+		$str = '';
+		foreach ($arr as $key => $value){
+			if($value['parent']== $pid){
+				if($value['isfolder']){
+					$str .= '<img align="absmiddle" style="cursor: pointer;position:relative;margin-left:-5px;" src="media/style/'.$this->config['theme'].'/images/tree/plusnode.gif" onclick="spoil(\'content_tree_doc_block_'.$value['id'].'\');this.src =($(\'content_tree_doc_block_'.$value['id'].'\').style.display == \'none\')?\'media/style/'.$this->config['theme'].'/images/tree/plusnode.gif\':\'media/style/'.$this->config['theme'].'/images/tree/minusnode.gif\'">';
+					$str .= $this->getDocBlock($value);
+					$str .= "<div id='content_tree_doc_block_".$value['id']."' style='display:none;margin-left:18px;'>";
+					$next_level = $this->view_tree($arr,$value['id']);
+					$str .= ($next_level)?$next_level:'<span class="empty">Пусто</span>';
+					$str .= "</div>";
+				}else{
+					$str .= $this->getDocBlock($value);
+				}
+			}
+			unset($arr[$key]);
+		}
+		return $str;
+	}
+	private function getDocBlock($i){
+		$type = 'doc';
+		if($i['contentType']=='text/html')
+			$i['contentType'] = 'htmlmixed';
+		$menu = 'oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\',\''.$i['contentType'].'\');"';
+		switch($i['contentType']){
+			case 'text/css':
+				$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_css.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
+			break;
+			case 'text/xml':
+				$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_xml.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
+			break;
+			case 'text/javascript':
+				$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_js.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
+			break;
+			default:
+				$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_html.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
+			break;
+		}
+		$dis = ($i['published'] == '0')?'disabled':'';
+		return $img.'<a href="#" style="margin:0;background:none;padding:0;" class="'.$dis.'" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['pagetitle'].'\',\''.$i['contentType'].'\');return false;" title="'.$i['longtitle'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\',\''.$i['contentType'].'\');">'.$i['pagetitle'].'</a></br>';
+	}
 	public function __construct($modx, $parameters){
 		parent::__construct($modx);
 		$this->config['theme'] 	= $modx->config['manager_theme'];
@@ -77,27 +117,7 @@ class DeveloperManager extends dataDeveloperManager{
 		$arr = $this->getAll($type, $par);
 		switch($type){
 			case 'doc': 
-				foreach ($arr as $i){
-					if($i['contentType']=='text/html')
-						$i['contentType'] = 'htmlmixed';
-					$menu = 'oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\',\''.$i['contentType'].'\');"';
-					switch($i['contentType']){
-						case 'text/css':
-							$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_css.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
-						break;
-						case 'text/xml':
-							$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_xml.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
-						break;
-						case 'text/javascript':
-							$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_js.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
-						break;
-						default:
-							$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_html.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
-						break;
-					}
-					$dis = ($i['published'] == '0')?'disabled':'';
-					$result .= $img.'<a href="#" style="margin:0;background:none;padding:0;" class="'.$dis.'" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['pagetitle'].'\',\''.$i['contentType'].'\');return false;" title="'.$i['longtitle'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\',\''.$i['contentType'].'\');">'.$i['pagetitle'].'</a></br>';
-				}
+				$result = $this->view_tree($arr,0);
 				break;
 			case 'tv':
 				foreach ($arr as $i)
@@ -147,7 +167,8 @@ class DeveloperManager extends dataDeveloperManager{
 			break;
 		}
 		foreach ($arr_str as $key => $value){
-			$result .= '<div onclick="spoil(\''.$type.'_category_'.$key.'\');saveSpoil(\''.$type.'_category_'.$key.'\');" class="categories">'.$category[$key]['category'].'</div><div id="'.$type.'_category_'.$key.'" style="display:none;" class="categories_data">'.$value.'</div>';
+			$catName = ($category[$key]['category'])?$category[$key]['category']:'Без категории';
+			$result .= '<div onclick="spoil(\''.$type.'_category_'.$key.'\');saveSpoil(\''.$type.'_category_'.$key.'\');" class="categories">'.$catName.'</div><div id="'.$type.'_category_'.$key.'" style="display:none;" class="categories_data">'.$value.'</div>';
 		}
 		return $result;
 	}
