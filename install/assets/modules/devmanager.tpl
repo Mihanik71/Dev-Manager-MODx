@@ -18,5 +18,4 @@
 include_once($modx->config['base_path'].'assets/modules/devmanager/'."developerManager.php");
 if (class_exists('DeveloperManager')){
         $manager = new DeveloperManager($modx, $_POST);
-        $manager->init();
 }
