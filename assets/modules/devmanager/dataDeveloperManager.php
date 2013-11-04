@@ -1,9 +1,10 @@
 <?php
 class dataDeveloperManager{
+    /*Var*/
 	private $modx;
 	private $config = array();
 	private $dbTable = array();
-	
+    /*Public*/
 	public function __construct($modx){
 		$this->modx = $modx;
 		$this->config['dbname'] 	= $modx->db->config['dbase'];
@@ -22,18 +23,19 @@ class dataDeveloperManager{
 		unset($this->dbTable);
 		$this->modx->db->disconnect();
 	}
-	public function getConfig($type, $id, $format = 'html'){
-		switch($type){
+	public function getConfig($type, $id){
+        switch($type){
 			case 'doc'		: $result = $this->selectData('*', $this->dbTable['doc'], $id); break;
 			case 'chunk'	: $result = $this->selectData('*', $this->dbTable['chunk'], $id); break;
 			case 'tv'		: $result = $this->selectData('*', $this->dbTable['tv'], $id); break;
 			case 'snippet'	: $result = $this->selectData('*', $this->dbTable['snippet'], $id); break;
 			case 'plugin'	: $result = $this->selectData('*', $this->dbTable['plugin'], $id); break;
 			case 'template'	: $result = $this->selectData('*', $this->dbTable['template'], $id); break;
-		}
-		return ($format == 'json')?json_encode($result):$result;
+		    default         : $result = '';
+        }
+		return $result;
 	}
-	public function create($type, $fields, $format = 'html'){
+	public function create($type, $fields){
 		switch($type){
 			case 'doc': 
 				$fields['content'] = addslashes($fields['content']);
@@ -58,11 +60,13 @@ class dataDeveloperManager{
 				$fields['content'] = addslashes($fields['content']);
 				$result = $this->modx->db->insert($fields, $this->dbTable['template']); 
 				break;
+            default:
+                $result ='';
 		}
 		$this->clearCache();
-		return ($format == 'json')?json_encode($result):$result;
+		return $result;
 	}
-	public function createCopy($type, $id, $format = 'html'){
+	public function createCopy($type, $id){
 		$arr = $this->getConfig($type, $id);
 		$arr['id'] = NULL;
 		switch($type){
@@ -82,33 +86,35 @@ class dataDeveloperManager{
 		}
 		$result = $this->create($type, $arr);
 		$this->clearCache();
-		return ($format == 'json')?json_encode($result):$result;
+		return $result;
 	}
-	public function delete($type, $id, $format = 'html'){
+	public function delete($type, $id){
 		switch($type){
-			case 'doc'	: $result = $this->modx->db->delete($this->dbTable['doc'], 'id = '.$id); break;
+			case 'doc'	    : $result = $this->modx->db->delete($this->dbTable['doc'], 'id = '.$id); break;
 			case 'chunk'	: $result = $this->modx->db->delete($this->dbTable['chunk'], 'id = '.$id); break;
-			case 'tv'	: $result = $this->modx->db->delete($this->dbTable['tv'], 'id = '.$id); break;
+			case 'tv'	    : $result = $this->modx->db->delete($this->dbTable['tv'], 'id = '.$id); break;
 			case 'snippet'	: $result = $this->modx->db->delete($this->dbTable['snippet'], 'id = '.$id); break;
 			case 'plugin'	: $result = $this->modx->db->delete($this->dbTable['plugin'], 'id = '.$id); break;
 			case 'template'	: $result = $this->modx->db->delete($this->dbTable['template'], 'id = '.$id); break;
-		}
+            default         : $result = '';
+        }
 		$this->clearCache();
-		return ($format == 'json')?json_encode($result):$result;
+		return $result;
 	}
-	public function update($type, $fields, $id, $format = 'html'){
+	public function update($type, $fields, $id){
 		switch($type){
-			case 'doc'	: $result = $this->modx->db->update($fields, $this->dbTable['doc'], 'id = "'.$id .'"'); break;
-			case 'chunk'	: $result = $this->modx->db->update($fields, $this->dbTable['chunk'], 'id = "'.$id .'"'); break;
-			case 'tv'	: $result = $this->modx->db->update($fields, $this->dbTable['tv'], 'id = "'.$id .'"'); break;
-			case 'snippet'	: $result = $this->modx->db->update($fields, $this->dbTable['snippet'], 'id = "'.$id .'"'); break;
-			case 'plugin'	: $result = $this->modx->db->update($fields, $this->dbTable['plugin'], 'id = "'.$id .'"'); break;
-			case 'template'	: $result = $this->modx->db->update($fields, $this->dbTable['template'], 'id = "'.$id .'"'); break;
-		}
+			case 'doc'	    : $result = $this->modx->db->update($fields, $this->dbTable['doc'], 'id = '.$id); break;
+			case 'chunk'	: $result = $this->modx->db->update($fields, $this->dbTable['chunk'], 'id = '.$id); break;
+			case 'tv'	    : $result = $this->modx->db->update($fields, $this->dbTable['tv'], 'id = '.$id); break;
+			case 'snippet'	: $result = $this->modx->db->update($fields, $this->dbTable['snippet'], 'id = '.$id); break;
+			case 'plugin'	: $result = $this->modx->db->update($fields, $this->dbTable['plugin'], 'id = '.$id); break;
+			case 'template'	: $result = $this->modx->db->update($fields, $this->dbTable['template'], 'id = '.$id); break;
+            default         : $result = '';
+        }
 		$this->clearCache();
-		return ($format == 'json')?json_encode($result):$result;
+		return $result;
 	}
-	public function getData($type, $id, $format = 'html'){
+	public function getData($type, $id){
 		switch($type){
 			case 'doc'		: 
 				$result = $this->selectData('content', $this->dbTable['doc'], $id);
@@ -130,10 +136,11 @@ class dataDeveloperManager{
 				$result = $this->selectData('content', $this->dbTable['template'], $id);
 				$result = $result['content'];
 				break;
+            default         : $result = '';
 		}
-		return ($format == 'json')?json_encode($result):$result;
+		return $result;
 	}
-	public function getAll($type, $sort = 'id', $format = 'html'){
+	public function getAll($type, $sort = 'id'){
 		switch($type){
 			case 'doc'		: $result = $this->selectAll('id, pagetitle, longtitle, published, contentType, isfolder, parent', $this->dbTable['doc'], $sort); break;
 			case 'chunk'	: $result = $this->selectAll('id, name, description, category', $this->dbTable['chunk'], $sort); break;
@@ -141,9 +148,27 @@ class dataDeveloperManager{
 			case 'snippet'	: $result = $this->selectAll('id, name, description, category', $this->dbTable['snippet'], $sort); break;
 			case 'plugin'	: $result = $this->selectAll('id, name, description, locked, disabled, category', $this->dbTable['plugin'], $sort); break;
 			case 'template'	: $result = $this->selectAll('id, templatename, description, category', $this->dbTable['template'], $sort); break;
-		}
-		return ($format == 'json')?json_encode($result):$result;
+            default         : $result = '';
+        }
+		return $result;
 	}
+    public function selectCategories(){
+        $result = array();
+        $rs = $this->modx->db->select('id,category', $this->dbTable['categories']);
+        $qty = mysql_num_rows($rs)+1;
+        for ($i = 1; $i < $qty; $i++)
+            $result[$i] = mysql_fetch_assoc($rs);
+        return $result;
+    }
+    public function clearCache(){
+        $this->modx->clearCache();
+        include_once (MODX_BASE_PATH."manager/processors/cache_sync.class.processor.php");
+        $sync = new synccache();
+        $sync->setCachepath(MODX_BASE_PATH . "assets/cache/");
+        $sync->setReport(false);
+        $sync->emptyCache();
+    }
+    /*Private*/
 	private function selectData($field, $table, $id){
 		$result = $this->modx->db->select($field, $table, 'id = '.$id);
 		return $this->modx->db->getRow($result);
@@ -152,19 +177,4 @@ class dataDeveloperManager{
 		$result = $this->modx->db->select($field, $table, '', $sort.' ASC');
 		return $this->modx->db->makeArray($result);
 	}
-	public function selectCategories($format = 'html'){
-		$rs = $this->modx->db->select('id,category', $this->dbTable['categories']);
-		$qty = mysql_num_rows($rs)+1;
-		for ($i = 1; $i < $qty; $i++) $result[$i] = mysql_fetch_assoc($rs);
-		return ($format == 'json')?json_encode($result):$result;
-	}
-	public function clearCache(){
-		$this->modx->clearCache();
-		include_once (MODX_BASE_PATH.'manager/processors/cache_sync.class.processor.php');
-		$sync = new synccache();
-		$sync->setCachepath(MODX_BASE_PATH . "assets/cache/");
-		$sync->setReport(false);
-		$sync->emptyCache();
-	}
 }
-?>

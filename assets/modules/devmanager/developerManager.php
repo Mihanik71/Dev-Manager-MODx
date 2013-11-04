@@ -1,78 +1,30 @@
 <?php
-if(IN_MANAGER_MODE!='true' && !$modx->hasPermission('exec_module')) die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.');
-
 include('dataDeveloperManager.php');
-class DeveloperManager extends dataDeveloperManager{
-	private $parameters = array();
-	private function view_tree($arr, $pid){
-		$str = '';
-		foreach ($arr as $key => $value){
-			if($value['parent']== $pid){
-				if($value['isfolder']){
-					$str .= '<img align="absmiddle" style="cursor: pointer;position:relative;margin-left:-5px;" src="media/style/'.$this->config['theme'].'/images/tree/plusnode.gif" onclick="saveSpoil(\'content_tree_doc_block_'.$value['id'].'\');spoil(\'content_tree_doc_block_'.$value['id'].'\');this.src =($(\'content_tree_doc_block_'.$value['id'].'\').style.display == \'none\')?\'media/style/'.$this->config['theme'].'/images/tree/plusnode.gif\':\'media/style/'.$this->config['theme'].'/images/tree/minusnode.gif\'">';
-					$str .= $this->getDocBlock($value);
-					$str .= "<div id='content_tree_doc_block_".$value['id']."' style='display:none;margin-left:18px;'>";
-					$next_level = $this->view_tree($arr,$value['id']);
-					$str .= ($next_level)?$next_level:'<span class="empty">Пусто</span>';
-					$str .= "</div>";
-				}else{
-					$str .= $this->getDocBlock($value);
-				}
-			}
-			unset($arr[$key]);
-		}
-		return $str;
-	}
-	private function getDocBlock($i){
-		$type = 'doc';
-		if($i['contentType']=='text/html')
-			$i['contentType'] = 'htmlmixed';
-		$menu = 'oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\',\''.$i['contentType'].'\');"';
-		switch($i['contentType']){
-			case 'text/css':
-				$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_css.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
-			break;
-			case 'text/xml':
-				$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_xml.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
-			break;
-			case 'text/javascript':
-				$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_js.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
-			break;
-			default:
-				$img ='<img src="media/style/'.$this->config['theme'].'/images/tree/application_html.png" style="top: 5px;position: relative;margin-right:5px;" title="Контекстное меню" '.$menu.'/>';
-			break;
-		}
-		$dis = ($i['published'] == '0')?'disabled':'';
-		return $img.'<a href="#" style="margin:0;background:none;padding:0;" class="'.$dis.'" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['pagetitle'].'\',\''.$i['contentType'].'\');return false;" title="'.$i['longtitle'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\',\''.$i['contentType'].'\');">'.$i['pagetitle'].'</a></br>';
-	}
+include('resultDeveloperManager.php');
+class DeveloperManager{
+    /*Var*/
+    private $parameters = array();
+    private $view;
+    /*Public*/
 	public function __construct($modx, $parameters){
-		parent::__construct($modx);
-		$this->config['theme'] 	= $modx->config['manager_theme'];
-		$this->config['basePath'] 	= $modx->config['base_path'];
-		$this->config['modulePath'] = $modx->config['base_path'].'assets/modules/devmanager/';
 		$this->parameters = $parameters;
+        $this->view = new viewDeveloperManager($modx);
+        $this->data = new dataDeveloperManager($modx);
+        $this->init();
 	}
 	public function __destruct(){
 		unset($this->parameters);
+        unset($view);
 	}
-    private function processTemplate($tpl,$params){
-        $tpl = file_get_contents($this->config['modulePath'].'templates/'.$tpl);
-        foreach($params as $key=>$value){
-            $tpl = str_replace('[+'.$key.'+]', $value, $tpl);
-        }
-        return $tpl;
-    }
-    private function printPage(){
-        echo $this->processTemplate('page.tpl',array('theme'=>$this->config['theme']));
-    }
-    public function init(){
+    /*Private*/
+    private function init(){
         if(isset($this->parameters['from']))
             if($this->parameters['from'] != 'ajax')
-                $this->printPage();
+                echo $this->view->printPage();
             else
                 $this->answer();
         else
-            $this->printPage();
+            echo $this->view->printPage();
     }
 	private function answer(){
 		switch($this->parameters['func']){
@@ -80,16 +32,13 @@ class DeveloperManager extends dataDeveloperManager{
 				echo (($this->parameters['cat'] == '1')&&($this->parameters['data'] != 'doc')) ? $this->printAllCategory($this->parameters['data'], $this->parameters['sort']) : $this->printAll($this->parameters['data'], $this->parameters['sort']);
 				break;
 			case 'createCopy':
-				echo $this->createCopy($this->parameters['data'],$this->parameters['DMid']);
+				echo $this->data->createCopy($this->parameters['data'],$this->parameters['DMid']);
 				break;
 			case 'delete':
-				echo $this->delete($this->parameters['data'],$this->parameters['DMid']);
-				break;
-			case 'new':
-				echo $this->delete($this->parameters['data']);
+				echo $this->data->delete($this->parameters['data'],$this->parameters['DMid']);
 				break;
 			case 'printCode':
-				echo htmlspecialchars($this->getData($this->parameters['data'],$this->parameters['DMid']));
+				echo htmlspecialchars($this->data->getData($this->parameters['data'],$this->parameters['DMid']));
 				break;
 			case 'printConfig':
 				echo $this->printConfig($this->parameters['data'],$this->parameters['DMid']);
@@ -104,210 +53,46 @@ class DeveloperManager extends dataDeveloperManager{
 				echo $this->createNew($this->parameters['data']);
 				break;
 			case 'clearCache':
-				echo $this->clearCache();
+				$this->data->clearCache();
 				break;
 		}
 	}
 	private function printAll($type, $par = 'id'){
-		$result = '';
-		if($par=='name'){
+        if($par=='name'){
 			if($type =='doc') $par = 'pagetitle';
 			if($type =='template') $par = 'templatename';
 		}
-		$arr = $this->getAll($type, $par);
-		switch($type){
-			case 'doc': 
-				$result = $this->view_tree($arr,0);
-				break;
-			case 'tv':
-				foreach ($arr as $i)
-					$result .= '<a href="#" title="'.$i['description'].'" onclick="box.getConfig(\''.$type.'\', \''.$i['id'].'\');" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
-				break;
-			case 'chunk':
-			case 'snippet':
-				foreach ($arr as $i)
-					$result .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['name'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
-				break;
-			case 'plugin':
-				foreach ($arr as $i){
-					$dis = ($i['disabled'] == '1')?'disabled':'';
-					$result .= '<a href="#" class="'.$dis.'" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['name'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
-				}
-				break;
-			case 'template':
-				foreach ($arr as $i)
-					$result .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['templatename'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['templatename'].'</a></br>';
-			break;
-		}
+		$arr = $this->data->getAll($type, $par);
+        $result = $this->view->printAll($type,$arr);
 		return $result;
 	}
 	private function printAllCategory($type, $par = 'id'){
-		$arr = $this->getAll($type, $par);
-		$category = $this->selectCategories();
-		$arr_str = array();
-		switch($type){
-			case 'tv':
-				foreach ($arr as $i)
-					$arr_str[$i['category']] .= '<a href="#" title="'.$i['description'].'" onclick="getConfig(\''.$type.'\', \''.$i['id'].'\');" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
-				break;
-			case 'chunk':
-			case 'snippet':
-				foreach ($arr as $i)
-					$arr_str[$i['category']] .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['name'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
-				break;
-			case 'plugin':
-				foreach ($arr as $i){
-					$dis = ($i['disabled'] == '1')?'disabled':'';
-					$arr_str[$i['category']] .= '<a href="#" class="'.$dis.'" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['name'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['name'].'</a></br>';
-				}
-				break;
-			case 'template':
-				foreach ($arr as $i)
-					$arr_str[$i['category']] .= '<a href="#" onclick="viewCode(\''.$type.'\','.$i['id'].',\''.$i['templatename'].'\');return false;" title="'.$i['description'].'" oncontextmenu="return menu.view(2, event, this, \''.$type.'\', \''.$i['id'].'\');">'.$i['templatename'].'</a></br>';
-			break;
-		}
-		foreach ($arr_str as $key => $value){
-			$catName = ($category[$key]['category'])?$category[$key]['category']:'Без категории';
-			$result .= '<div onclick="spoil(\''.$type.'_category_'.$key.'\');saveSpoil(\''.$type.'_category_'.$key.'\');" class="categories">'.$catName.'</div><div id="'.$type.'_category_'.$key.'" style="display:none;" class="categories_data">'.$value.'</div>';
-		}
+		$arr = $this->data->getAll($type, $par);
+		$category = $this->data->selectCategories();
+		$result = $this->view->printAllCategory($type,$arr,$category);
 		return $result;
 	}
-	private function printConfig($type, $id, $par = 'id'){
-		$result = '';
-		$arr = $this->getConfig($type, $id);
+	private function printConfig($type, $id){
+        $result = '';
+		$arr = $this->data->getConfig($type, $id);
 		switch($type){
 			case 'doc': 
-				$template_arr = $this->getAll('template');
-				$template = '<select name="template" class="inputBox" style="width:300px;"><option value="0">(blank)</option>';
-				foreach($template_arr as $value){
-					if($arr['template'] == $value['id'])
-						$template.= '<option value="'.$value['id'].'" selected=selected>'.$value['templatename'].'</option>';
-					else
-						$template.= '<option value="'.$value['id'].'">'.$value['templatename'].'</option>';
-				}
-				$template .= '</select>';
-				$types = array('application/rss+xml','application/pdf','application/vnd.ms-word','application/vnd.ms-excel','text/html','text/css','text/xml','text/javascript','text/plain','application/json');
-				$type ='<select name="contentType" class="inputBox" style="width:300px">';
-				foreach($types as $value){
-					if($arr['contentType'] == $value)
-						$type.= '<option value="'.$value.'" selected=selected>'.$value.'</option>';
-					else
-						$type.= '<option value="'.$value.'">'.$value.'</option>';
-				}
-				$type .= '</select>';
-				$published = ($arr['published']=='0')?'':'checked';
-				$params = array(
-					'pagetitle'=>$arr['pagetitle'],
-					'longtitle'=>$arr['longtitle'],
-					'description'=>$arr['description'],
-					'introtext'=>$arr['introtext'],
-					'alias'=>$arr['alias'],
-					'template'=>$template,
-					'type'=>$type,
-					'published'=>$published
-				);
-				echo $this->processTemplate('config/doc.tpl',$params);
+				$data_arr = $this->data->getAll('template');
+                $result = $this->view->printConfig($type,$arr,$data_arr);
 				break;
 			case 'tv':
-				$cat_arr = $this->selectCategories();
-				$cat = '<select name="category" class="inputBox" style="width:300px;"><option value="0"> </option>';
-				foreach($cat_arr as $value){
-					if($arr['category'] == $value['id'])
-						$cat.= '<option value="'.$value['id'].'" selected=selected>'.$value['category'].'</option>';
-					else
-						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
-				}
-				$cat .= '</select>';
-				$cat .= '</select>';
-				$types = array('text','textarea','textareamini','richtext','dropdown','listbox','listbox-multiple','option','checkbox','image','file','url','email','number','date','custom_tv');
-				$type ='<select name="type" class="inputBox" style="width:300px">';
-				foreach($types as $value){
-					if($arr['type'] == $value)
-						$type.= '<option value="'.$value.'" selected=selected>'.$value.'</option>';
-					else
-						$type.= '<option value="'.$value.'">'.$value.'</option>';
-				}
-				$type .= '</select>';
-				$params = array(
-					'name'=>$arr['name'],
-					'caption'=>$arr['caption'],
-					'description'=>$arr['description'],
-					'type'=>$type,
-					'elements'=>$arr['elements'],
-					'default_text'=>$arr['default_text'],
-					'display'=>$arr['display'],
-					'cat'=>$cat
-				);
-				echo $this->processTemplate('config/tv.tpl',$params);
-				break;
 			case 'chunk':
 			case 'snippet':
-				$cat_arr = $this->selectCategories();
-				$cat = '<select name="category" class="inputBox" style="width:300px;"><option value="0"> </option>';
-				foreach($cat_arr as $value){
-					if($arr['category'] == $value['id'])
-						$cat.= '<option value="'.$value['id'].'" selected=selected>'.$value['category'].'</option>';
-					else
-						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
-				}
-				$cat .= '</select>';
-				$params = array(
-					'name'=>$arr['name'],
-					'description'=>$arr['description'],
-					'cat'=>$cat
-				);
-				echo $this->processTemplate('config/snippet.tpl',$params);
-				break;
 			case 'plugin':
-				$cat_arr = $this->selectCategories();
-				$cat = '<select name="category" class="inputBox" style="width:300px;"><option value="0"> </option>';
-				foreach($cat_arr as $value){
-					if($arr['category'] == $value['id'])
-						$cat.= '<option value="'.$value['id'].'" selected=selected>'.$value['category'].'</option>';
-					else
-						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
-				}
-				$cat .= '</select>';
-				$published = ($arr['disabled']=='0')?'':'checked';
-				$params = array(
-					'name'=>$arr['name'],
-					'description'=>$arr['description'],
-					'type'=>$type,
-					'cat'=>$cat,
-					'properties'=>$arr['properties'],
-					'published'=>$published
-				);
-				echo $this->processTemplate('config/plugin.tpl',$params);
-				break;
 			case 'template':
-				$cat_arr = $this->selectCategories();
-				$cat = '<select name="category" class="inputBox" style="width:300px;"><option value="0"> </option>';
-				foreach($cat_arr as $value){
-					if($arr['category'] == $value['id'])
-						$cat.= '<option value="'.$value['id'].'" selected=selected>'.$value['category'].'</option>';
-					else
-						$cat.= '<option value="'.$value['id'].'">'.$value['category'].'</option>';
-				}
-				$cat .= '</select>';
-				$params = array(
-					'templatename'=>$arr['templatename'],
-					'description'=>$arr['description'],
-					'cat'=>$cat
-				);
-				echo $this->processTemplate('config/template.tpl',$params);
+				$data_arr = $this->data->selectCategories();
+                $result = $this->view->printConfig($type,$arr,$data_arr);
 				break;
 		}
 		return $result;
 	}
-	private function slashesArr($arr,$parameters){
-		$fields = array();
-		foreach($arr as $value){
-			if(isset($this->parameters[$value]))
-				$fields[$value] = addslashes($this->parameters[$value]);
-		}
-		return $fields;
-	}
 	private function saveConfig($type, $id){
+        $fields = array();
 		switch($type){
 			case 'doc':
 					if(isset($this->parameters['pagetitle']))$fields['pagetitle'] = addslashes($this->parameters['pagetitle']);
@@ -346,9 +131,10 @@ class DeveloperManager extends dataDeveloperManager{
 					if(isset($this->parameters['category']))$fields['category'] = addslashes($this->parameters['category']);
 				break;
 		}
-		return $this->update($type, $fields, $id);
+		return $this->data->update($type, $fields, $id);
 	}
 	private function saveData($type, $id){
+        $fields = array();
 		switch($type){
 			case 'doc'		: 
 				if(isset($this->parameters['content']))$fields['content'] = addslashes($this->parameters['content']);
@@ -364,9 +150,10 @@ class DeveloperManager extends dataDeveloperManager{
 				if(isset($this->parameters['content']))$fields['content'] = addslashes($this->parameters['content']);
 				break;
 		}
-		return $this->update($type, $fields, $id);
+		return $this->data->update($type, $fields, $id);
 	}
 	private function createNew($type){
+        $fields = array();
 		switch($type){
 			case 'doc'		: 
 				$fields['pagetitle'] = 'New';
@@ -381,7 +168,6 @@ class DeveloperManager extends dataDeveloperManager{
 				$fields['templatename'] = 'New';
 				break;
 		}
-		return $this->create($type, $fields);
+		return $this->data->create($type, $fields);
 	}
 }
-?>
